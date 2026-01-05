@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python:*)",
+      "Bash(pip:*)",
+      "Bash(pytest:*)",
+      "WebFetch(domain:amazon.co.jp)",
+      "WebFetch(domain:amazon.com)",
+      "WebFetch(domain:webservices.amazon.com)",
+      "WebFetch(domain:ebay.com)",
+      "WebFetch(domain:rakuten.co.jp)",
+      "Read",
+      "Write",
+      "Edit",
+      "Glob",
+      "Grep"
+    ],
+    "deny": []
+  },
+  "project": {
+    "name": "EcomTrendAI",
+    "language": "python",
+    "description": "AI-powered e-commerce trend analysis tool"
+  }
+}
