@@ -3,15 +3,11 @@
 スクレイパーモジュールのテスト
 """
 
-import sys
 from pathlib import Path
 
 import pytest
 
-# srcディレクトリをパスに追加
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
-
-from scraper import AmazonScraper, ProductData, DataSaver
+from scraper import AmazonScraper, DataSaver, ProductData
 
 
 class TestAmazonScraper:

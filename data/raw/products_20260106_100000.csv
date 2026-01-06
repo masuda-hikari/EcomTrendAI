@@ -1,0 +1,11 @@
+asin,name,category,current_rank,previous_rank,rank_change,rank_change_percent,price,currency,review_count,rating,affiliate_url,timestamp,source
+B001TEST01,ゲーミングチェア Pro X,家電&カメラ,1,,285,285.0,29800,JPY,1500,4.7,https://amazon.co.jp/dp/B001TEST01?tag=ecomtrend-20,2026-01-06T10:00:00,amazon_movers_shakers
+B002TEST02,ワイヤレスイヤホン Z5,家電&カメラ,2,,142,142.0,12980,JPY,3200,4.5,https://amazon.co.jp/dp/B002TEST02?tag=ecomtrend-20,2026-01-06T10:00:00,amazon_movers_shakers
+B003TEST03,電気毛布 暖かさん,家電&カメラ,3,,98,98.0,5980,JPY,890,4.3,https://amazon.co.jp/dp/B003TEST03?tag=ecomtrend-20,2026-01-06T10:00:00,amazon_movers_shakers
+B004TEST04,PS5 コントローラー,ゲーム,1,,320,320.0,7980,JPY,2100,4.8,https://amazon.co.jp/dp/B004TEST04?tag=ecomtrend-20,2026-01-06T10:00:00,amazon_movers_shakers
+B005TEST05,Nintendo Switch ケース,ゲーム,2,,180,180.0,2480,JPY,4500,4.6,https://amazon.co.jp/dp/B005TEST05?tag=ecomtrend-20,2026-01-06T10:00:00,amazon_movers_shakers
+B006TEST06,ゲーミングマウス RGB,ゲーム,3,,95,95.0,3980,JPY,1800,4.4,https://amazon.co.jp/dp/B006TEST06?tag=ecomtrend-20,2026-01-06T10:00:00,amazon_movers_shakers
+B007TEST07,外付けSSD 1TB,パソコン・周辺機器,1,,250,250.0,9800,JPY,2800,4.7,https://amazon.co.jp/dp/B007TEST07?tag=ecomtrend-20,2026-01-06T10:00:00,amazon_movers_shakers
+B008TEST08,USB-C ハブ 7in1,パソコン・周辺機器,2,,120,120.0,3480,JPY,1200,4.2,https://amazon.co.jp/dp/B008TEST08?tag=ecomtrend-20,2026-01-06T10:00:00,amazon_movers_shakers
+B009TEST09,モニターアーム デュアル,パソコン・周辺機器,3,,85,85.0,6980,JPY,950,4.5,https://amazon.co.jp/dp/B009TEST09?tag=ecomtrend-20,2026-01-06T10:00:00,amazon_movers_shakers
+B010TEST10,空気清浄機 HEPA,ホーム&キッチン,1,,150,150.0,19800,JPY,3500,4.6,https://amazon.co.jp/dp/B010TEST10?tag=ecomtrend-20,2026-01-06T10:00:00,amazon_movers_shakers

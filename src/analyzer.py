@@ -5,7 +5,7 @@
 収集したデータからトレンドを検出・分析
 """
 
-import csv
+import math
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -98,7 +98,6 @@ class TrendAnalyzer:
         # レビュー数（対数スケール）
         review_count = row.get("review_count", 0) or 0
         if review_count > 0:
-            import math
             score += min(math.log10(review_count) * 10, 30)  # 最大30ポイント
 
         # 評価（4.0以上で加点）

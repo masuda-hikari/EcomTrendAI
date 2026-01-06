@@ -6,8 +6,9 @@ Amazon等のEコマースプラットフォームから商品トレンドデー�
 """
 
 import csv
+import re
 import time
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
@@ -223,7 +224,6 @@ class AmazonScraper:
             return None
         try:
             # 「5つ星のうち4.5」形式を想定
-            import re
             match = re.search(r"(\d+\.?\d*)", text)
             return float(match.group(1)) if match else None
         except ValueError:

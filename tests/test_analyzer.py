@@ -3,14 +3,10 @@
 トレンド分析モジュールのテスト
 """
 
-import sys
 from pathlib import Path
 
-import pytest
 import pandas as pd
-
-# srcディレクトリをパスに追加
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+import pytest
 
 from analyzer import TrendAnalyzer, TrendItem
 
