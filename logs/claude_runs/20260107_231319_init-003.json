@@ -1,0 +1,6 @@
+﻿{
+    "timestamp":  "2026-01-07T23:13:19",
+    "error":  "このコマンドは、次のエラーのため実行できません: %1 は有効な Win32 アプリケーションではありません。。",
+    "task_id":  "init-003",
+    "failure_classification":  "quality"
+}
