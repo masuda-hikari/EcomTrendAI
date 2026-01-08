@@ -219,13 +219,16 @@ class AmazonScraper:
             return None
 
     def _parse_rating(self, text: str) -> Optional[float]:
-        """評価をパース（例: '4.5' → 4.5）"""
+        """評価をパース（例: '4.5' → 4.5, '5つ星のうち4.2' → 4.2）"""
         if not text:
             return None
         try:
-            # 「5つ星のうち4.5」形式を想定
-            match = re.search(r"(\d+\.?\d*)", text)
-            return float(match.group(1)) if match else None
+            # 「5つ星のうち4.5」形式を想定（最後の数値を取得）
+            matches = re.findall(r"(\d+\.?\d*)", text)
+            if matches:
+                # 最後の数値を返す（評価値）
+                return float(matches[-1])
+            return None
         except ValueError:
             return None
 

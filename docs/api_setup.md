@@ -1,12 +1,12 @@
-# Amazon Product Advertising API セットアップガイド
+﻿# Amazon Product Advertising API セットアップガイド
 
 ## 概要
 
-EcomTrendAIでAmazon PA-APIを使用するための設定手順
+EcomTrendAIでAmazon PA-APIを使用するための設定手順。
 
 ## 前提条件
 
-1. Amazonアソシエイト・プログラムへの登録
+1. Amazonアソシエイトプログラムへの登録
 2. PA-APIへのアクセス申請・承認
 
 ## セットアップ手順
@@ -19,9 +19,9 @@ EcomTrendAIでAmazon PA-APIを使用するための設定手順
 
 ### 2. PA-APIアクセス申請
 
-1. アソシエイト・セントラルにログイン
+1. アソシエイトセントラルにログイン
 2. ツール → Product Advertising API
-3. 認証情報を生成:
+3. 認証情報を生成
    - Access Key
    - Secret Key
 
