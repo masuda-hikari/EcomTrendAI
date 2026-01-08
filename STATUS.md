@@ -1,49 +1,63 @@
-﻿﻿# EcomTrendAI - ステータス
+# EcomTrendAI - ステータス
 
 最終更新: 2026-01-09
 
 ## 現在の状態
-- 状態: Phase 2 完了（レポート配信機能実装済み）
-- 進捗: Email/Slack/Discord配信機能実装、テスト29件全合格
+- 状態: Phase 3 完了（認証・課金システム実装済み）
+- 進捗: ユーザー認証、Stripe決済統合、REST API実装、テスト76件全合格
 
 ## 次のアクション
-1. **配信設定**: .envにSMTP/Webhook設定を追加し動作確認
-2. **PA-API統合**: アフィリエイトアカウント取得後、正式API連携
-3. **Phase 3**: ユーザー認証・課金システム構築
+1. **Stripe本番設定**: Stripeアカウント作成、価格ID設定、Webhook設定
+2. **API公開準備**: ドメイン設定、SSL証明書、uvicornデプロイ
+3. **Phase 4**: Webダッシュボード構築（Next.js）
 
 ## 最近の変更
+- 2026-01-09: Phase 3 認証・課金システム実装
+  - auth.py: ユーザー認証、プラン管理、APIキー管理
+  - api.py: FastAPI REST API（トレンド取得、エクスポート、課金）
+  - Stripe統合: Checkout、Webhook処理
+  - テスト47件追加（合計76件）
 - 2026-01-09: Phase 2 レポート配信機能実装
-  - distributor.py: Email/Slack/Discord配信モジュール
-  - main.py: --distribute オプション追加
-  - .env.example: 配信設定項目追加
-  - test_distributor.py: 14件のテスト追加
 - 2026-01-08: 日次自動実行基盤構築
-- 2026-01-08: スクレイパーHTML構造対応・実データ取得成功
 
 ## テスト状況
-- 合計: 29件
-- 合格: 29件
+- 合計: 76件
+- 合格: 76件
 - 失敗: 0件
 
-## 配信機能の使用方法
+## 課金プラン
+| プラン | 月額 | 機能 |
+|--------|------|------|
+| Free | ¥0 | 日次10件、カテゴリ2、API 100回/日 |
+| Pro | ¥980 | 日次100件、全カテゴリ、リアルタイムアラート、CSV/JSON出力 |
+| Enterprise | ¥4,980 | 無制限、カスタムダッシュボード、専用サポート |
+
+## API使用方法
 ```bash
-# 配信あり実行
-python src/main.py --distribute
+# サーバー起動
+python src/api.py --host 0.0.0.0 --port 8000
 
-# 配信設定（.env）
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your-email@gmail.com
-SMTP_PASSWORD=your-app-password
-EMAIL_FROM=your-email@gmail.com
-EMAIL_TO=recipient@example.com
+# ユーザー登録
+curl -X POST http://localhost:8000/users/register \
+  -H "Content-Type: application/json" \
+  -d '{"email": "user@example.com"}'
 
-SLACK_WEBHOOK_URL=https://hooks.slack.com/services/...
-DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...
+# トレンド取得
+curl http://localhost:8000/trends \
+  -H "X-API-Key: ect_your_api_key"
+```
+
+## 環境設定（.env）
+```bash
+# Stripe設定（必須：課金機能使用時）
+STRIPE_SECRET_KEY=sk_test_xxxxx
+STRIPE_WEBHOOK_SECRET=whsec_xxxxx
+STRIPE_PRICE_PRO=price_xxxxx_pro
+STRIPE_PRICE_ENTERPRISE=price_xxxxx_enterprise
 ```
 
 ## 技術メモ
-- Email: SMTP/TLS対応、HTML+テキスト両形式
-- Slack: Block Kit形式、3000文字制限対応
-- Discord: Embed形式、4096文字制限対応
-- 配信先未設定時は自動スキップ
+- 認証: APIキーベース（Bearer/X-API-Key）
+- 決済: Stripe Checkout Session
+- プラン制限: リクエストごとにチェック
+- データ永続化: JSONファイル（将来DB移行予定）
