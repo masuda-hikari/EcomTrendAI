@@ -11,6 +11,7 @@ import sys
 import time
 from datetime import datetime
 from pathlib import Path
+from typing import Optional
 
 from loguru import logger
 
@@ -81,7 +82,7 @@ def run_analyzer() -> tuple[list, dict]:
     return trends, category_trends
 
 
-def run_reporter(trends: list, category_trends: dict) -> list[Path]:
+def run_reporter(trends: list, category_trends: dict) -> tuple[list[Path], Optional[Path], Optional[Path]]:
     """
     レポート生成を実行
 
@@ -90,7 +91,7 @@ def run_reporter(trends: list, category_trends: dict) -> list[Path]:
         category_trends: カテゴリ別トレンド
 
     Returns:
-        生成されたレポートファイルパス
+        (生成されたレポートファイルパス一覧, MDパス, HTMLパス)
     """
     from analyzer import ReportGenerator
     from reporter import HTMLReportGenerator
@@ -109,7 +110,48 @@ def run_reporter(trends: list, category_trends: dict) -> list[Path]:
     reports.append(html_path)
 
     logger.info(f"レポート生成完了: {len(reports)}件")
-    return reports
+    return reports, md_path, html_path
+
+
+def run_distributor(
+    trends: list,
+    md_path: Optional[Path] = None,
+    html_path: Optional[Path] = None
+) -> dict[str, bool]:
+    """
+    レポート配信を実行
+
+    Args:
+        trends: トレンドリスト（サマリー生成用）
+        md_path: Markdownレポートパス
+        html_path: HTMLレポートパス
+
+    Returns:
+        配信結果
+    """
+    from distributor import ReportDistributor, create_summary_for_notification
+
+    logger.info("=== レポート配信開始 ===")
+
+    distributor = ReportDistributor()
+
+    if not distributor.distributors:
+        logger.info("配信先が設定されていないため、配信をスキップ")
+        return {}
+
+    # ファイルがある場合はファイルから配信
+    if md_path and md_path.exists():
+        results = distributor.distribute_from_files(md_path, html_path)
+    else:
+        # ファイルがない場合はサマリーのみ配信
+        subject = f"📊 EcomTrendAI トレンドレポート - {datetime.now().strftime('%Y%m%d')}"
+        summary = create_summary_for_notification(trends, top_n=5)
+        results = distributor.distribute(subject, summary)
+
+    success = sum(1 for v in results.values() if v)
+    logger.info(f"配信完了: {success}/{len(results)} 成功")
+
+    return results
 
 
 def main():
@@ -131,6 +173,16 @@ def main():
         "--skip-scrape",
         action="store_true",
         help="データ収集をスキップ（既存データで分析のみ）",
+    )
+    parser.add_argument(
+        "--distribute",
+        action="store_true",
+        help="レポートをEmail/Webhookで配信（.env設定必須）",
+    )
+    parser.add_argument(
+        "--skip-distribute",
+        action="store_true",
+        help="レポート配信をスキップ",
     )
 
     args = parser.parse_args()
@@ -158,7 +210,12 @@ def main():
             return 1
 
         # Step 3: レポート生成
-        reports = run_reporter(trends, category_trends)
+        reports, md_path, html_path = run_reporter(trends, category_trends)
+
+        # Step 4: レポート配信（--distributeまたはデフォルト動作）
+        distribution_results = {}
+        if args.distribute and not args.skip_distribute:
+            distribution_results = run_distributor(trends, md_path, html_path)
 
         # 完了サマリー
         elapsed = (datetime.now() - start_time).total_seconds()
@@ -167,6 +224,9 @@ def main():
         logger.info(f"  収集商品数: {product_count}")
         logger.info(f"  トレンド件数: {len(trends)}")
         logger.info(f"  生成レポート: {len(reports)}件")
+        if distribution_results:
+            success = sum(1 for v in distribution_results.values() if v)
+            logger.info(f"  配信成功: {success}/{len(distribution_results)}")
         logger.info(f"  実行時間: {elapsed:.1f}秒")
         logger.info("=" * 60)
 

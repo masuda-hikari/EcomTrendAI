@@ -117,9 +117,8 @@ class AmazonScraper:
         timestamp = datetime.now().isoformat()
         category_name = self.CATEGORIES.get(category, category)
 
-        # 商品カード要素を抽出（実際のHTML構造に合わせて調整が必要）
-        # 以下はサンプル実装 - 実際のAmazonページ構造に合わせて修正すること
-        product_cards = soup.select(".p13n-sc-uncoverable-faceout")[:limit]
+        # 商品グリッドアイテムを抽出（2026年1月時点のHTML構造）
+        product_cards = soup.select(".p13n-grid-content")[:limit]
 
         for idx, card in enumerate(product_cards, 1):
             try:
@@ -136,48 +135,90 @@ class AmazonScraper:
         self, card: BeautifulSoup, category: str, timestamp: str, rank: int
     ) -> Optional[ProductData]:
         """
-        商品カードHTMLをパース
+        商品カードHTMLをパース（2026年1月時点のHTML構造対応）
 
         注意: Amazon のHTML構造は変更される可能性があるため、
         定期的なメンテナンスが必要
         """
-        # ASIN抽出
-        asin_elem = card.select_one("[data-asin]")
-        asin = asin_elem.get("data-asin", "") if asin_elem else ""
+        # ASIN抽出（URLから取得）
+        asin = ""
+        link_elem = card.select_one('a[href*="/dp/"]')
+        if link_elem:
+            href = link_elem.get("href", "")
+            asin_match = re.search(r"/dp/([A-Z0-9]{10})", href)
+            if asin_match:
+                asin = asin_match.group(1)
+
         if not asin:
             return None
 
-        # 商品名
-        name_elem = card.select_one(".p13n-sc-truncate-desktop-type2")
-        name = name_elem.get_text(strip=True) if name_elem else "不明"
+        # 商品名（複数セレクタで試行）
+        name = "不明"
+        name_selectors = [
+            "._cDEzb_p13n-sc-css-line-clamp-3_g3dy1",
+            ".p13n-sc-truncate-desktop-type2",
+            "a.a-link-normal span",
+        ]
+        for sel in name_selectors:
+            name_elem = card.select_one(sel)
+            if name_elem:
+                text = name_elem.get_text(strip=True)
+                if text and len(text) > 5:  # 価格のみのテキストを除外
+                    name = text
+                    break
 
-        # ランク変動
-        rank_change_elem = card.select_one(".zg-bdg-text")
+        # ランク変動（zg-grid-pct-changeクラス）
+        rank_change_elem = card.select_one(".zg-grid-pct-change")
         rank_change_text = rank_change_elem.get_text(strip=True) if rank_change_elem else ""
         rank_change = self._parse_rank_change(rank_change_text)
 
-        # 価格
-        price_elem = card.select_one(".p13n-sc-price")
-        price = self._parse_price(price_elem.get_text(strip=True)) if price_elem else None
+        # 現在ランク（zg-grid-rank-metadataから抽出）
+        current_rank_from_page = None
+        meta_elem = card.select_one("[class*='zg-grid-rank-metadata']")
+        if meta_elem:
+            meta_text = meta_elem.get_text(strip=True)
+            # 「ランキング: 17」形式から数値を抽出
+            rank_match = re.search(r"[:\s](\d+)", meta_text)
+            if rank_match:
+                current_rank_from_page = int(rank_match.group(1))
 
-        # レビュー数
-        review_elem = card.select_one(".a-size-small .a-link-normal")
-        review_count = self._parse_review_count(
-            review_elem.get_text(strip=True)
-        ) if review_elem else None
+        # 価格（複数セレクタで試行）
+        price = None
+        price_selectors = [".p13n-sc-price", ".a-price .a-offscreen", "span.a-price-whole"]
+        for sel in price_selectors:
+            price_elem = card.select_one(sel)
+            if price_elem:
+                price = self._parse_price(price_elem.get_text(strip=True))
+                if price:
+                    break
+
+        # レビュー数（評価星の隣のリンクから）
+        review_count = None
+        review_elem = card.select_one(".a-icon-row .a-link-normal")
+        if review_elem:
+            review_text = review_elem.get_text(strip=True)
+            # 「4,248」のような形式を抽出
+            review_match = re.search(r"([\d,]+)$", review_text)
+            if review_match:
+                review_count = self._parse_review_count(review_match.group(1))
 
         # 評価
-        rating_elem = card.select_one(".a-icon-star-small")
-        rating = self._parse_rating(rating_elem.get_text(strip=True)) if rating_elem else None
+        rating_elem = card.select_one(".a-icon-star-small .a-icon-alt")
+        rating = None
+        if rating_elem:
+            rating = self._parse_rating(rating_elem.get_text(strip=True))
+
+        # 最終的なランクを決定（ページ取得値 > 引数）
+        final_rank = current_rank_from_page if current_rank_from_page else rank
 
         return ProductData(
             asin=asin,
             name=name,
             category=category,
-            current_rank=rank,
+            current_rank=final_rank,
             previous_rank=None,  # 履歴データから計算
             rank_change=rank_change,
-            rank_change_percent=self._calc_change_percent(rank_change, rank),
+            rank_change_percent=self._calc_change_percent(rank_change, final_rank),
             price=price,
             currency="JPY",
             review_count=review_count,
