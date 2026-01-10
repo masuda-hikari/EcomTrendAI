@@ -4,7 +4,10 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import SocialShare from '@/components/SocialShare';
 import EmailCapture from '@/components/EmailCapture';
+import ABTestCTA from '@/components/ABTestCTA';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import { useEffect } from 'react';
+import { trackPageView, trackAffiliateClick } from '@/lib/tracking';
 
 // サンプルトレンドデータ
 const sampleTrends = [
@@ -42,6 +45,23 @@ const categoryData = [
 
 export default function SampleReport() {
   const today = new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  // ページビュー追跡
+  useEffect(() => {
+    trackPageView('sample-report', { section: 'conversion' });
+  }, []);
+
+  // アフィリエイトクリック追跡ハンドラー
+  const handleProductClick = (item: typeof sampleTrends[0]) => {
+    trackAffiliateClick({
+      asin: `SAMPLE${item.rank}`,
+      productName: item.name,
+      category: item.category,
+      price: parseInt(item.price.replace(/[¥,]/g, '')),
+      rank: item.rank,
+      source: 'sample',
+    });
+  };
 
   return (
     <>
@@ -190,7 +210,11 @@ export default function SampleReport() {
                     </thead>
                     <tbody className="divide-y divide-gray-200">
                       {sampleTrends.map((item) => (
-                        <tr key={item.rank} className="hover:bg-gray-50">
+                        <tr
+                          key={item.rank}
+                          className="hover:bg-gray-50 cursor-pointer"
+                          onClick={() => handleProductClick(item)}
+                        >
                           <td className="px-4 py-4 whitespace-nowrap">
                             <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold ${
                               item.rank <= 3 ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800'
@@ -233,15 +257,8 @@ export default function SampleReport() {
                   <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white via-white/90 to-transparent pointer-events-none"></div>
                   <div className="p-6 pt-16 text-center relative z-10">
                     <p className="text-gray-600 mb-4">続きを見るには無料登録が必要です</p>
-                    <Link
-                      href="/register"
-                      className="inline-flex items-center px-6 py-3 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-colors"
-                    >
-                      無料で登録する
-                      <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                      </svg>
-                    </Link>
+                    {/* A/Bテスト対応CTA */}
+                    <ABTestCTA href="/register" className="px-6 py-3" />
                   </div>
                 </div>
               </div>
@@ -310,12 +327,8 @@ export default function SampleReport() {
                 <p className="text-primary-100 text-sm mb-4">
                   毎日更新される最新トレンドデータにアクセス。リアルタイムアラートでチャンスを逃しません。
                 </p>
-                <Link
-                  href="/register"
-                  className="block w-full py-3 bg-white text-primary-600 rounded-lg font-semibold text-center hover:bg-primary-50 transition-colors"
-                >
-                  無料で始める
-                </Link>
+                {/* A/Bテスト対応CTA */}
+                <ABTestCTA href="/register" className="block w-full py-3" />
               </div>
             </div>
           </div>

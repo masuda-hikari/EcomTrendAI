@@ -4,7 +4,10 @@ import Head from 'next/head';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import UpgradePrompt from '@/components/UpgradePrompt';
+import { OnboardingChecklist, WelcomeToast } from '@/components/OnboardingFlow';
 import { api, auth, TrendItem, User } from '@/lib/api';
+import { trackPageView, trackAffiliateClick } from '@/lib/tracking';
 
 export default function Dashboard() {
   const router = useRouter();
@@ -46,6 +49,23 @@ export default function Dashboard() {
     fetchData();
   }, [router]);
 
+  // ページビュー追跡
+  useEffect(() => {
+    trackPageView('dashboard', { section: 'main' });
+  }, []);
+
+  // アフィリエイトクリック追跡ハンドラー
+  const handleAffiliateClick = (trend: TrendItem) => {
+    trackAffiliateClick({
+      asin: trend.asin,
+      productName: trend.name,
+      category: trend.category,
+      price: trend.price ?? undefined,
+      rank: trend.current_rank,
+      source: 'dashboard',
+    });
+  };
+
   // アップグレード成功メッセージ
   useEffect(() => {
     if (router.query.upgraded === 'true') {
@@ -76,8 +96,29 @@ export default function Dashboard() {
 
       <Header />
 
+      {/* Freeプラン向けアップグレードバナー */}
+      {user?.plan === 'free' && (
+        <UpgradePrompt
+          currentPlan={user.plan}
+          variant="banner"
+          highlightFeature="alerts"
+        />
+      )}
+
       <main className="min-h-screen bg-gray-50 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* ウェルカムトースト（初回訪問時） */}
+          <WelcomeToast />
+
+          {/* オンボーディングチェックリスト（サイドバー風） */}
+          {user && (
+            <OnboardingChecklist
+              hasApiKey={!!auth.getApiKey()}
+              hasFirstApiCall={trends.length > 0}
+              plan={user.plan}
+            />
+          )}
+
           {/* ヘッダー */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900">ダッシュボード</h1>
@@ -177,6 +218,7 @@ export default function Dashboard() {
                             href={trend.affiliate_url}
                             target="_blank"
                             rel="noopener noreferrer"
+                            onClick={() => handleAffiliateClick(trend)}
                             className="text-primary-600 hover:text-primary-700"
                           >
                             <svg className="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -212,15 +254,24 @@ export default function Dashboard() {
               </Link>
             </div>
 
-            <div className="card">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">もっと機能が必要ですか？</h3>
-              <p className="text-gray-600 text-sm mb-4">
-                Proプランにアップグレードすると、リアルタイムアラートやCSV/JSONエクスポートが利用できます。
-              </p>
-              <Link href="/pricing" className="btn-primary inline-block text-sm py-2 px-4">
-                プランを比較する
-              </Link>
-            </div>
+            {/* アップセルカード（Freeプランの場合のみ） */}
+            {user?.plan === 'free' ? (
+              <UpgradePrompt
+                currentPlan={user.plan}
+                variant="card"
+                highlightFeature="export"
+              />
+            ) : (
+              <div className="card">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Proプランをご利用中</h3>
+                <p className="text-gray-600 text-sm mb-4">
+                  全ての機能をご利用いただけます。何かお困りのことがあればお問い合わせください。
+                </p>
+                <Link href="/contact" className="btn-primary inline-block text-sm py-2 px-4">
+                  お問い合わせ
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </main>

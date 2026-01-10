@@ -1,12 +1,19 @@
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import EmailCapture from '@/components/EmailCapture';
+import ABTestCTA, { ABTestHeroHeadline } from '@/components/ABTestCTA';
 import Link from 'next/link';
 import Head from 'next/head';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { trackPageView } from '@/lib/tracking';
 
 export default function Home() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+
+  // ページビュー追跡
+  useEffect(() => {
+    trackPageView('home', { section: 'landing' });
+  }, []);
 
   const faqs = [
     {
@@ -64,25 +71,11 @@ export default function Home() {
                 <span>累計10,000商品以上を分析</span>
               </div>
 
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
-                AIで見つける
-                <br />
-                <span className="bg-gradient-to-r from-primary-200 to-white bg-clip-text text-transparent">
-                  次の売れ筋商品
-                </span>
-              </h1>
-              <p className="text-lg md:text-xl lg:text-2xl text-primary-100 mb-8 max-w-3xl mx-auto leading-relaxed">
-                Amazonのトレンドをリアルタイムで分析。
-                <br className="hidden sm:block" />
-                急上昇商品をいち早くキャッチして、ビジネスチャンスを逃しません。
-              </p>
+              {/* A/Bテスト対応ヒーロー見出し */}
+              <ABTestHeroHeadline />
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link
-                  href="/register"
-                  className="bg-white text-primary-600 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-primary-50 transition-all hover:scale-105 shadow-lg"
-                >
-                  無料で始める
-                </Link>
+                {/* A/Bテスト対応CTAボタン */}
+                <ABTestCTA href="/register" />
                 <Link
                   href="/sample-report"
                   className="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-white/10 transition-all"
@@ -399,12 +392,8 @@ export default function Home() {
               より高度な分析が必要な場合は、いつでもアップグレード可能です。
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                href="/register"
-                className="inline-block bg-white text-primary-600 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-primary-50 transition-all hover:scale-105 shadow-lg"
-              >
-                無料アカウントを作成
-              </Link>
+              {/* フッターCTAもA/Bテスト対応 */}
+              <ABTestCTA href="/register" />
               <Link
                 href="/contact"
                 className="inline-block border-2 border-white text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-white/10 transition-all"
