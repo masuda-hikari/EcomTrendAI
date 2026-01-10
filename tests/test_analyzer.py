@@ -137,5 +137,207 @@ class TestTrendItem:
         assert item.trend_score == 75.5
 
 
+class TestReportGenerator:
+    """ReportGeneratorのテスト"""
+
+    @pytest.fixture
+    def generator(self, tmp_path: Path):
+        """ReportGeneratorのフィクスチャ"""
+        from analyzer import ReportGenerator
+        return ReportGenerator(output_dir=tmp_path)
+
+    @pytest.fixture
+    def sample_trends(self) -> list[TrendItem]:
+        """サンプルトレンドデータ"""
+        return [
+            TrendItem(
+                asin=f"B00{i}",
+                name=f"テスト商品{i}",
+                category="家電",
+                rank_change_percent=100.0 - (i * 10),
+                current_rank=i,
+                price=10000.0 - (i * 1000),
+                review_count=500 - (i * 50),
+                rating=4.5 - (i * 0.1),
+                affiliate_url=f"https://amazon.co.jp/dp/B00{i}?tag=test",
+                trend_score=80.0 - (i * 5),
+            )
+            for i in range(12)
+        ]
+
+    @pytest.fixture
+    def sample_category_trends(self, sample_trends) -> dict[str, list[TrendItem]]:
+        """サンプルカテゴリ別トレンドデータ"""
+        return {
+            "家電": sample_trends[:4],
+            "ゲーム": sample_trends[4:8],
+            "パソコン": sample_trends[8:],
+        }
+
+    def test_init_creates_output_dir(self, tmp_path: Path):
+        """出力ディレクトリが作成される"""
+        from analyzer import ReportGenerator
+        output_dir = tmp_path / "reports"
+        generator = ReportGenerator(output_dir=output_dir)
+
+        assert output_dir.exists()
+        assert generator.output_dir == output_dir
+
+    def test_generate_markdown_report(self, generator, sample_trends, sample_category_trends, tmp_path):
+        """Markdownレポートが生成される"""
+        filepath = generator.generate_markdown_report(sample_trends, sample_category_trends)
+
+        assert filepath.exists()
+        assert filepath.suffix == ".md"
+        assert filepath.parent == tmp_path
+
+    def test_markdown_content(self, generator, sample_trends, sample_category_trends):
+        """Markdownの内容を検証"""
+        filepath = generator.generate_markdown_report(sample_trends, sample_category_trends)
+        content = filepath.read_text(encoding="utf-8")
+
+        # 基本構造
+        assert "# EcomTrendAI トレンドレポート" in content
+        assert "## 急上昇商品 TOP 10" in content
+        assert "## カテゴリ別トレンド" in content
+
+        # 商品情報（最初の10件のみ）
+        assert "テスト商品0" in content
+        assert "テスト商品9" in content
+
+        # カテゴリセクション
+        assert "### 家電" in content
+        assert "### ゲーム" in content
+        assert "### パソコン" in content
+
+        # フッター
+        assert "自動生成" in content
+        assert "アフィリエイト" in content
+
+    def test_markdown_with_none_values(self, generator):
+        """価格や評価がNoneの場合"""
+        trend = TrendItem(
+            asin="B999",
+            name="価格不明商品",
+            category="テスト",
+            rank_change_percent=50.0,
+            current_rank=1,
+            price=None,
+            review_count=None,
+            rating=None,
+            affiliate_url="https://amazon.co.jp/dp/B999?tag=test",
+            trend_score=50.0,
+        )
+
+        filepath = generator.generate_markdown_report([trend], {})
+        content = filepath.read_text(encoding="utf-8")
+
+        assert "価格不明商品" in content
+        assert "価格不明" in content
+
+    def test_markdown_empty_trends(self, generator):
+        """空のトレンドリスト"""
+        filepath = generator.generate_markdown_report([], {})
+        content = filepath.read_text(encoding="utf-8")
+
+        assert "# EcomTrendAI トレンドレポート" in content
+        assert "## 急上昇商品 TOP 10" in content
+
+    def test_markdown_no_category_trends(self, generator, sample_trends):
+        """カテゴリ別トレンドなし"""
+        filepath = generator.generate_markdown_report(sample_trends, {})
+        content = filepath.read_text(encoding="utf-8")
+
+        # カテゴリセクションが追加されない
+        assert "## カテゴリ別トレンド" not in content
+
+    def test_print_console_report(self, generator, sample_trends, capsys):
+        """コンソールレポート出力"""
+        generator.print_console_report(sample_trends)
+
+        captured = capsys.readouterr()
+        assert "EcomTrendAI トレンドレポート" in captured.out
+        assert "急上昇商品 TOP 10" in captured.out
+        assert "テスト商品0" in captured.out
+
+    def test_print_console_report_empty(self, generator, capsys):
+        """空リストでのコンソール出力"""
+        generator.print_console_report([])
+
+        captured = capsys.readouterr()
+        assert "EcomTrendAI トレンドレポート" in captured.out
+
+    def test_print_console_long_name_truncated(self, generator, capsys):
+        """長い商品名が切り詰められる"""
+        trend = TrendItem(
+            asin="B999",
+            name="A" * 100,  # 長い商品名
+            category="テスト",
+            rank_change_percent=50.0,
+            current_rank=1,
+            price=10000.0,
+            review_count=100,
+            rating=4.5,
+            affiliate_url="https://test.com",
+            trend_score=50.0,
+        )
+
+        generator.print_console_report([trend])
+
+        captured = capsys.readouterr()
+        # 35文字 + "..." に切り詰められる
+        assert "A" * 35 + "..." in captured.out
+        assert "A" * 100 not in captured.out
+
+
+class TestLoadHistoricalData:
+    """load_historical_dataのテスト"""
+
+    @pytest.fixture
+    def historical_data(self, tmp_path: Path) -> Path:
+        """過去データを複数作成"""
+        data_dir = tmp_path / "data" / "raw"
+        data_dir.mkdir(parents=True)
+
+        csv_content = """asin,name,category,current_rank,previous_rank,rank_change,rank_change_percent,price,currency,review_count,rating,affiliate_url,timestamp,source
+B001,商品A,家電,1,,100,100.0,10000,JPY,500,4.5,https://test.com,2026-01-01T10:00:00,test
+"""
+        # 複数日分のファイルを作成
+        for i in range(5):
+            date = f"2026010{i+1}"
+            csv_path = data_dir / f"products_{date}_100000.csv"
+            csv_path.write_text(csv_content, encoding="utf-8-sig")
+
+        return data_dir
+
+    def test_load_historical_data_all_days(self, historical_data: Path):
+        """全日分のデータを読み込み"""
+        analyzer = TrendAnalyzer(data_dir=historical_data)
+        df = analyzer.load_historical_data(days=7)
+
+        assert df is not None
+        # 5ファイル × 1レコード = 5レコード
+        assert len(df) == 5
+
+    def test_load_historical_data_limited_days(self, historical_data: Path):
+        """指定日数分のみ読み込み"""
+        analyzer = TrendAnalyzer(data_dir=historical_data)
+        df = analyzer.load_historical_data(days=3)
+
+        assert df is not None
+        # 最新3ファイル × 1レコード = 3レコード
+        assert len(df) == 3
+
+    def test_load_historical_data_empty(self, tmp_path: Path):
+        """空ディレクトリの場合"""
+        empty_dir = tmp_path / "empty"
+        empty_dir.mkdir()
+
+        analyzer = TrendAnalyzer(data_dir=empty_dir)
+        df = analyzer.load_historical_data(days=7)
+
+        assert df is None
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

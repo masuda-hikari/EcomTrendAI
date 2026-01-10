@@ -351,3 +351,85 @@ class TestWebhookHandling:
         }
         result = billing_manager.handle_webhook_event(event)
         assert result is True
+
+
+@pytest.mark.skipif(not FASTAPI_AVAILABLE, reason="FastAPI not installed")
+class TestAPITrends:
+    """トレンドAPIのテスト"""
+
+    @pytest.fixture
+    def client(self, temp_dir, monkeypatch):
+        """テストクライアント"""
+        monkeypatch.setenv("USERS_FILE", str(temp_dir / "users.json"))
+
+        from api import create_app
+        app = create_app()
+        return TestClient(app)
+
+    def test_get_trends_requires_auth(self, client):
+        """トレンド取得には認証が必要"""
+        response = client.get("/trends")
+        assert response.status_code == 401
+
+    def test_get_trends_with_invalid_key(self, client):
+        """無効なAPIキーでは拒否"""
+        response = client.get(
+            "/trends",
+            headers={"X-API-Key": "invalid_key_12345"}
+        )
+        assert response.status_code == 401
+
+
+@pytest.mark.skipif(not FASTAPI_AVAILABLE, reason="FastAPI not installed")
+class TestAPIBilling:
+    """課金APIのテスト"""
+
+    @pytest.fixture
+    def client(self, temp_dir, monkeypatch):
+        """テストクライアント"""
+        monkeypatch.setenv("USERS_FILE", str(temp_dir / "users.json"))
+
+        from api import create_app
+        app = create_app()
+        return TestClient(app)
+
+    def test_get_plans_has_price(self, client):
+        """プラン一覧に価格が含まれる"""
+        response = client.get("/billing/plans")
+        assert response.status_code == 200
+        data = response.json()
+
+        for plan in data["plans"]:
+            assert "id" in plan
+            assert "name" in plan
+            assert "price_jpy" in plan
+
+
+@pytest.mark.skipif(not FASTAPI_AVAILABLE, reason="FastAPI not installed")
+class TestAPIUsersFlow:
+    """ユーザーフローのテスト"""
+
+    def test_register_duplicate_email_fails(self, temp_dir, monkeypatch):
+        """重複メールアドレスでの登録失敗"""
+        monkeypatch.setenv("USERS_FILE", str(temp_dir / "users_dup.json"))
+
+        from api import create_app
+        app = create_app()
+        client = TestClient(app)
+
+        # 1回目
+        client.post("/users/register", json={"email": "dup@example.com"})
+        # 2回目
+        response = client.post("/users/register", json={"email": "dup@example.com"})
+        assert response.status_code == 400
+
+    def test_get_current_user_requires_auth(self, temp_dir, monkeypatch):
+        """現在のユーザー情報取得には認証が必要"""
+        monkeypatch.setenv("USERS_FILE", str(temp_dir / "users_auth.json"))
+
+        from api import create_app
+        app = create_app()
+        client = TestClient(app)
+
+        response = client.get("/users/me")
+        assert response.status_code == 401
