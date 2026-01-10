@@ -1,10 +1,10 @@
-﻿# EcomTrendAI - ステータス
+# EcomTrendAI - ステータス
 
 最終更新: 2026-01-10
 
 ## 現在の状態
-- 状態: Phase 6 CI/CD完全自動化完了
-- 進捗: GitHub Actions、Docker、Vercel設定完了
+- 状態: Phase 7 法務対応完了
+- 進捗: プライバシーポリシー、利用規約、特定商取引法表記、お問い合わせページ追加
 
 ## 次のアクション
 1. **GitHubリポジトリ作成・Push**: コードをGitHubにpush
@@ -14,6 +14,12 @@
 5. **Docker Composeデプロイ**: `docker-compose up -d`
 
 ## 最近の変更
+- 2026-01-10: Phase 7 法務対応
+  - プライバシーポリシーページ追加 (`dashboard/src/pages/privacy.tsx`)
+  - 利用規約ページ追加 (`dashboard/src/pages/terms.tsx`)
+  - 特定商取引法表記ページ追加 (`dashboard/src/pages/legal/commerce.tsx`)
+  - お問い合わせページ追加 (`dashboard/src/pages/contact.tsx`)
+  - ESLint全クリア、ビルド成功（12ページ）
 - 2026-01-10: Phase 6 CI/CD自動化
   - GitHub Actions CI/CDパイプライン（`.github/workflows/ci.yml`）
   - Vercelデプロイ設定（`vercel.json`）
@@ -23,14 +29,28 @@
   - ESLint設定追加
 - 2026-01-10: Phase 5 デプロイ準備
   - npm install完了（424パッケージ）
-  - npm run build成功（全8ページ生成）
+  - npm run build成功（全12ページ生成）
   - pytest 76件全パス
 
 ## テスト状況
 - バックエンド: 76件合格
 - フロントエンドLint: エラーなし
-- フロントエンドビルド: 8ページ成功
+- フロントエンドビルド: 12ページ成功
 - E2Eテスト: 設定完了（Playwrightブラウザ未インストール）
+
+## ページ一覧（12ページ）
+| ページ | パス | 説明 |
+|--------|------|------|
+| トップ | `/` | ランディングページ |
+| ログイン | `/login` | ユーザーログイン |
+| 登録 | `/register` | ユーザー登録 |
+| 料金 | `/pricing` | 料金プラン |
+| ダッシュボード | `/dashboard` | メインダッシュボード |
+| ドキュメント | `/docs` | APIドキュメント |
+| プライバシーポリシー | `/privacy` | 個人情報保護方針 |
+| 利用規約 | `/terms` | サービス利用規約 |
+| 特商法表記 | `/legal/commerce` | 特定商取引法表記 |
+| お問い合わせ | `/contact` | お問い合わせフォーム |
 
 ## デプロイ構成
 
