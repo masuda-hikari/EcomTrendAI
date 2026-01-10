@@ -849,3 +849,120 @@ class TestHealthEndpoints:
         assert "ecomtrend_users_total" in content
         assert "ecomtrend_subscribers_total" in content
         assert "ecomtrend_api_up 1" in content
+
+
+@pytest.mark.skipif(not FASTAPI_AVAILABLE, reason="FastAPI not installed")
+class TestClickTrackingEndpoints:
+    """クリック追跡エンドポイントのテスト"""
+
+    @pytest.fixture
+    def client(self, temp_dir, monkeypatch):
+        """テストクライアント"""
+        monkeypatch.setenv("USERS_FILE", str(temp_dir / "users_tracking.json"))
+        monkeypatch.chdir(temp_dir)
+        (temp_dir / "data").mkdir(exist_ok=True)
+
+        from api import create_app
+        app = create_app()
+        return TestClient(app)
+
+    @pytest.fixture
+    def authenticated_client(self, temp_dir, monkeypatch):
+        """認証済みテストクライアント"""
+        monkeypatch.setenv("USERS_FILE", str(temp_dir / "users_tracking_auth.json"))
+        monkeypatch.chdir(temp_dir)
+        (temp_dir / "data").mkdir(exist_ok=True)
+
+        from api import create_app
+        app = create_app()
+        client = TestClient(app)
+
+        import uuid
+        email = f"tracking_{uuid.uuid4().hex[:8]}@example.com"
+        reg_resp = client.post("/users/register", json={"email": email})
+        api_key = reg_resp.json()["api_key"]
+
+        return client, api_key
+
+    def test_track_click_success(self, client):
+        """クリック追跡 - 正常系"""
+        response = client.post(
+            "/api/track/click",
+            json={
+                "asin": "B012345678",
+                "product_name": "テスト商品",
+                "category": "electronics",
+                "price": 1980,
+                "rank": 100,
+                "source": "website"
+            }
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert data["success"] is True
+        assert data["tracked"] is True
+
+    def test_track_click_minimal(self, client):
+        """クリック追跡 - 最小パラメータ"""
+        response = client.post(
+            "/api/track/click",
+            json={
+                "asin": "B098765432",
+                "product_name": "最小商品"
+            }
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert data["success"] is True
+
+    def test_track_click_invalid_asin(self, client):
+        """クリック追跡 - ASINなし"""
+        response = client.post(
+            "/api/track/click",
+            json={
+                "product_name": "商品名のみ"
+            }
+        )
+        assert response.status_code == 422  # Validation Error
+
+    def test_get_click_stats_requires_auth(self, client):
+        """クリック統計取得 - 認証必須"""
+        response = client.get("/api/track/stats")
+        assert response.status_code == 401
+
+    def test_get_click_stats_authenticated(self, authenticated_client):
+        """クリック統計取得 - 認証済み"""
+        client, api_key = authenticated_client
+
+        # まずクリックを記録
+        client.post(
+            "/api/track/click",
+            json={
+                "asin": "B011111111",
+                "product_name": "統計テスト商品1",
+                "category": "books",
+                "source": "dashboard"
+            }
+        )
+        client.post(
+            "/api/track/click",
+            json={
+                "asin": "B022222222",
+                "product_name": "統計テスト商品2",
+                "category": "electronics",
+                "source": "sample"
+            }
+        )
+
+        # 統計取得
+        response = client.get(
+            "/api/track/stats",
+            headers={"X-API-Key": api_key}
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert "total_clicks" in data
+        assert "by_source" in data
+        assert "by_category" in data
+        assert "top_products" in data
+        assert data["total_clicks"] >= 2

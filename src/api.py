@@ -49,6 +49,15 @@ if FASTAPI_AVAILABLE:
         """ユーザー登録リクエスト"""
         email: EmailStr
 
+    class ClickTrackRequest(BaseModel):
+        """クリック追跡リクエスト"""
+        asin: str
+        product_name: str
+        category: Optional[str] = None
+        price: Optional[float] = None
+        rank: Optional[int] = None
+        source: str = "website"
+
     class UserResponse(BaseModel):
         """ユーザーレスポンス"""
         user_id: str
@@ -531,6 +540,103 @@ https://ecomtrend.ai
             "success": True,
             "message": "登録が完了しました！明日から毎朝8時にトレンドレポートをお届けします。",
             "email_notification": email_sent,
+        }
+
+    # === エンドポイント: クリック追跡 ===
+
+    @app.post("/api/track/click", tags=["Tracking"])
+    async def track_click(request: ClickTrackRequest):
+        """
+        アフィリエイトクリックを追跡
+
+        - クリックデータをログに記録
+        - 収益分析のためのデータ収集
+        """
+        import json
+        from pathlib import Path
+
+        # クリックデータファイル
+        clicks_file = Path("data/clicks.json")
+        clicks_file.parent.mkdir(parents=True, exist_ok=True)
+
+        # 既存クリックデータの読み込み
+        clicks = []
+        if clicks_file.exists():
+            try:
+                with open(clicks_file, "r", encoding="utf-8") as f:
+                    clicks = json.load(f)
+            except (json.JSONDecodeError, IOError):
+                clicks = []
+
+        # 新規クリック追加
+        new_click = {
+            "asin": request.asin,
+            "product_name": request.product_name,
+            "category": request.category,
+            "price": request.price,
+            "rank": request.rank,
+            "source": request.source,
+            "timestamp": datetime.now().isoformat(),
+        }
+        clicks.append(new_click)
+
+        # 最新10000件のみ保持
+        clicks = clicks[-10000:]
+
+        # 保存
+        with open(clicks_file, "w", encoding="utf-8") as f:
+            json.dump(clicks, f, ensure_ascii=False, indent=2)
+
+        logger.info(f"クリック追跡: {request.asin} ({request.source})")
+
+        return {"success": True, "tracked": True}
+
+    @app.get("/api/track/stats", tags=["Tracking"])
+    async def get_click_stats(user: User = Depends(get_current_user)):
+        """
+        クリック統計を取得（認証必須）
+
+        管理者向けのクリック統計情報を返します。
+        """
+        import json
+        from pathlib import Path
+        from collections import Counter
+
+        clicks_file = Path("data/clicks.json")
+        if not clicks_file.exists():
+            return {
+                "total_clicks": 0,
+                "by_source": {},
+                "by_category": {},
+                "top_products": [],
+            }
+
+        try:
+            with open(clicks_file, "r", encoding="utf-8") as f:
+                clicks = json.load(f)
+        except (json.JSONDecodeError, IOError):
+            return {
+                "total_clicks": 0,
+                "by_source": {},
+                "by_category": {},
+                "top_products": [],
+            }
+
+        # 統計計算
+        sources = Counter(c.get("source", "unknown") for c in clicks)
+        categories = Counter(c.get("category", "unknown") for c in clicks if c.get("category"))
+        products = Counter((c.get("asin", ""), c.get("product_name", "")) for c in clicks)
+
+        top_products = [
+            {"asin": asin, "product_name": name, "clicks": count}
+            for (asin, name), count in products.most_common(10)
+        ]
+
+        return {
+            "total_clicks": len(clicks),
+            "by_source": dict(sources),
+            "by_category": dict(categories),
+            "top_products": top_products,
         }
 
     # === エンドポイント: ユーザー管理 ===
