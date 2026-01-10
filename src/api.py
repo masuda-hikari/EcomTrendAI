@@ -41,6 +41,10 @@ if FASTAPI_AVAILABLE:
         category: str
         message: str
 
+    class NewsletterSubscribeRequest(BaseModel):
+        """ニュースレター購読リクエスト"""
+        email: EmailStr
+
     class UserRegisterRequest(BaseModel):
         """ユーザー登録リクエスト"""
         email: EmailStr
@@ -203,6 +207,123 @@ def create_app() -> "FastAPI":
         """ヘルスチェック"""
         return {"status": "healthy"}
 
+    @app.get("/health/detailed", tags=["General"])
+    async def health_detailed():
+        """
+        詳細ヘルスチェック
+
+        各コンポーネントの状態を確認し、監視システム用の情報を返します。
+        """
+        import json
+        from pathlib import Path
+        import sys
+
+        checks = {}
+        overall_status = "healthy"
+
+        # 1. データディレクトリチェック
+        data_dir = Path("data")
+        checks["data_directory"] = {
+            "status": "healthy" if data_dir.exists() else "warning",
+            "exists": data_dir.exists(),
+            "writable": data_dir.exists() and os.access(data_dir, os.W_OK),
+        }
+
+        # 2. 購読者ファイルチェック
+        subscribers_file = Path("data/subscribers.json")
+        subscriber_count = 0
+        if subscribers_file.exists():
+            try:
+                with open(subscribers_file, "r", encoding="utf-8") as f:
+                    subscribers = json.load(f)
+                    subscriber_count = len(subscribers)
+                checks["subscribers"] = {"status": "healthy", "count": subscriber_count}
+            except Exception as e:
+                checks["subscribers"] = {"status": "warning", "error": str(e)}
+        else:
+            checks["subscribers"] = {"status": "healthy", "count": 0}
+
+        # 3. 認証サービスチェック
+        try:
+            auth_service = AuthService()
+            user_count = len(auth_service.users)
+            checks["auth_service"] = {"status": "healthy", "user_count": user_count}
+        except Exception as e:
+            checks["auth_service"] = {"status": "unhealthy", "error": str(e)}
+            overall_status = "degraded"
+
+        # 4. Stripe接続チェック
+        stripe_key = os.getenv("STRIPE_SECRET_KEY", "")
+        if stripe_key and stripe_key.startswith("sk_"):
+            checks["stripe"] = {
+                "status": "healthy",
+                "mode": "test" if "test" in stripe_key else "live",
+            }
+        else:
+            checks["stripe"] = {"status": "warning", "message": "未設定"}
+
+        # 5. メール設定チェック
+        smtp_host = os.getenv("SMTP_HOST", "")
+        checks["email"] = {
+            "status": "healthy" if smtp_host else "warning",
+            "configured": bool(smtp_host),
+        }
+
+        # 6. システム情報
+        checks["system"] = {
+            "python_version": sys.version,
+            "timestamp": datetime.now().isoformat(),
+        }
+
+        # 全体ステータス判定
+        for check in checks.values():
+            if isinstance(check, dict) and check.get("status") == "unhealthy":
+                overall_status = "unhealthy"
+                break
+
+        return {
+            "status": overall_status,
+            "checks": checks,
+            "timestamp": datetime.now().isoformat(),
+        }
+
+    @app.get("/metrics", tags=["General"])
+    async def metrics():
+        """
+        Prometheusメトリクス形式
+
+        監視システム（Prometheus/Grafana）用のメトリクスを返します。
+        """
+        import json
+        from pathlib import Path
+
+        lines = []
+
+        # ユーザー数
+        try:
+            auth_service = AuthService()
+            lines.append(f"ecomtrend_users_total {len(auth_service.users)}")
+        except Exception:
+            lines.append("ecomtrend_users_total 0")
+
+        # 購読者数
+        subscribers_file = Path("data/subscribers.json")
+        subscriber_count = 0
+        if subscribers_file.exists():
+            try:
+                with open(subscribers_file, "r", encoding="utf-8") as f:
+                    subscribers = json.load(f)
+                    subscriber_count = len(subscribers)
+            except Exception:
+                pass
+        lines.append(f"ecomtrend_subscribers_total {subscriber_count}")
+
+        # API稼働状態
+        lines.append("ecomtrend_api_up 1")
+
+        from fastapi.responses import PlainTextResponse
+        return PlainTextResponse("\n".join(lines) + "\n", media_type="text/plain")
+
     # === エンドポイント: お問い合わせ ===
 
     @app.post("/contact", tags=["Contact"])
@@ -302,6 +423,113 @@ EcomTrendAIへのお問い合わせがありました。
         return {
             "success": True,
             "message": "お問い合わせを受け付けました。2営業日以内にご返信いたします。",
+            "email_notification": email_sent,
+        }
+
+    # === エンドポイント: ニュースレター ===
+
+    @app.post("/api/newsletter/subscribe", tags=["Newsletter"])
+    async def subscribe_newsletter(request: NewsletterSubscribeRequest):
+        """
+        ニュースレター購読登録
+
+        無料トレンドレポートの購読を登録します。
+        - メールアドレスのバリデーション
+        - 重複チェック
+        - 確認メール送信
+        """
+        import json
+        from pathlib import Path
+
+        # 購読者データファイル
+        subscribers_file = Path("data/subscribers.json")
+        subscribers_file.parent.mkdir(parents=True, exist_ok=True)
+
+        # 既存購読者の読み込み
+        subscribers = []
+        if subscribers_file.exists():
+            try:
+                with open(subscribers_file, "r", encoding="utf-8") as f:
+                    subscribers = json.load(f)
+            except (json.JSONDecodeError, IOError):
+                subscribers = []
+
+        # 重複チェック
+        existing_emails = [s.get("email") for s in subscribers]
+        if request.email in existing_emails:
+            return {
+                "success": True,
+                "message": "既に登録済みです。毎朝8時にトレンドレポートをお届けしています。",
+                "already_subscribed": True,
+            }
+
+        # 新規購読者追加
+        new_subscriber = {
+            "email": request.email,
+            "subscribed_at": datetime.now().isoformat(),
+            "status": "active",
+            "source": "website",
+        }
+        subscribers.append(new_subscriber)
+
+        # 保存
+        with open(subscribers_file, "w", encoding="utf-8") as f:
+            json.dump(subscribers, f, ensure_ascii=False, indent=2)
+
+        logger.info(f"ニュースレター購読: {request.email}")
+
+        # 確認メール送信（設定されている場合）
+        email_sent = False
+        from distributor import DistributionConfig, EmailDistributor
+
+        config = DistributionConfig.from_env()
+        if config.is_email_configured():
+            try:
+                distributor = EmailDistributor(config)
+                # 購読者への確認メール
+                subject = "【EcomTrendAI】トレンドレポート購読ありがとうございます"
+                content = f"""
+{request.email} 様
+
+EcomTrendAI トレンドレポートにご登録いただきありがとうございます！
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+【ご登録内容】
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+■ 配信内容: Eコマーストレンドレポート
+■ 配信頻度: 毎朝8時（日本時間）
+■ 配信形式: メール
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+【明日からお届けする内容】
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✓ 急上昇商品TOP10
+✓ カテゴリ別トレンド
+✓ 週間まとめ（毎週月曜日）
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+より詳細な分析やリアルタイムアラートをご希望の方は
+Proプランをご検討ください。
+
+https://ecomtrend.ai/pricing
+
+配信停止はこちら:
+https://ecomtrend.ai/unsubscribe?email={request.email}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+EcomTrendAI - AIトレンド分析
+https://ecomtrend.ai
+"""
+                email_sent = distributor.send(subject, content)
+            except Exception as e:
+                logger.error(f"確認メール送信失敗: {e}")
+
+        return {
+            "success": True,
+            "message": "登録が完了しました！明日から毎朝8時にトレンドレポートをお届けします。",
             "email_notification": email_sent,
         }
 

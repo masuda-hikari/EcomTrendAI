@@ -748,3 +748,104 @@ class TestAPITrendsEndpoints:
         )
         # FREEユーザーは403
         assert response.status_code == 403
+
+
+@pytest.mark.skipif(not FASTAPI_AVAILABLE, reason="FastAPI not installed")
+class TestNewsletterEndpoints:
+    """ニュースレターエンドポイントのテスト"""
+
+    @pytest.fixture
+    def client(self, temp_dir, monkeypatch):
+        """テストクライアント"""
+        monkeypatch.setenv("USERS_FILE", str(temp_dir / "users_newsletter.json"))
+        # データディレクトリをテンポラリに設定
+        monkeypatch.chdir(temp_dir)
+        (temp_dir / "data").mkdir(exist_ok=True)
+
+        from api import create_app
+        app = create_app()
+        return TestClient(app)
+
+    def test_newsletter_subscribe_success(self, client):
+        """ニュースレター購読登録 - 正常系"""
+        response = client.post(
+            "/api/newsletter/subscribe",
+            json={"email": "subscribe@example.com"}
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert data["success"] is True
+        assert "message" in data
+
+    def test_newsletter_subscribe_invalid_email(self, client):
+        """ニュースレター購読登録 - 無効なメール"""
+        response = client.post(
+            "/api/newsletter/subscribe",
+            json={"email": "invalid-email"}
+        )
+        assert response.status_code == 422  # Validation Error
+
+    def test_newsletter_subscribe_duplicate(self, client):
+        """ニュースレター購読登録 - 重複登録"""
+        email = "duplicate@example.com"
+
+        # 1回目
+        response1 = client.post(
+            "/api/newsletter/subscribe",
+            json={"email": email}
+        )
+        assert response1.status_code == 200
+
+        # 2回目（重複）
+        response2 = client.post(
+            "/api/newsletter/subscribe",
+            json={"email": email}
+        )
+        assert response2.status_code == 200
+        data = response2.json()
+        assert data["success"] is True
+        assert data.get("already_subscribed") is True
+
+
+@pytest.mark.skipif(not FASTAPI_AVAILABLE, reason="FastAPI not installed")
+class TestHealthEndpoints:
+    """ヘルスチェックエンドポイントのテスト"""
+
+    @pytest.fixture
+    def client(self, temp_dir, monkeypatch):
+        """テストクライアント"""
+        monkeypatch.setenv("USERS_FILE", str(temp_dir / "users_health.json"))
+        monkeypatch.chdir(temp_dir)
+        (temp_dir / "data").mkdir(exist_ok=True)
+
+        from api import create_app
+        app = create_app()
+        return TestClient(app)
+
+    def test_health_detailed(self, client):
+        """詳細ヘルスチェック"""
+        response = client.get("/health/detailed")
+        assert response.status_code == 200
+        data = response.json()
+        assert "status" in data
+        assert "checks" in data
+        assert "timestamp" in data
+
+        # 各チェック項目の存在確認
+        checks = data["checks"]
+        assert "data_directory" in checks
+        assert "auth_service" in checks
+        assert "stripe" in checks
+        assert "email" in checks
+        assert "system" in checks
+
+    def test_metrics_endpoint(self, client):
+        """メトリクスエンドポイント"""
+        response = client.get("/metrics")
+        assert response.status_code == 200
+        assert response.headers["content-type"] == "text/plain; charset=utf-8"
+
+        content = response.text
+        assert "ecomtrend_users_total" in content
+        assert "ecomtrend_subscribers_total" in content
+        assert "ecomtrend_api_up 1" in content
