@@ -417,10 +417,14 @@ class TestAPIUsersFlow:
         app = create_app()
         client = TestClient(app)
 
+        # ユニークなメールアドレスを使用（UUID）
+        import uuid
+        email = f"dup_{uuid.uuid4().hex[:8]}@example.com"
+
         # 1回目
-        client.post("/users/register", json={"email": "dup@example.com"})
+        client.post("/users/register", json={"email": email})
         # 2回目
-        response = client.post("/users/register", json={"email": "dup@example.com"})
+        response = client.post("/users/register", json={"email": email})
         assert response.status_code == 400
 
     def test_get_current_user_requires_auth(self, temp_dir, monkeypatch):
@@ -433,3 +437,314 @@ class TestAPIUsersFlow:
 
         response = client.get("/users/me")
         assert response.status_code == 401
+
+    def test_register_user_returns_api_key(self, temp_dir, monkeypatch):
+        """新規登録でAPIキーが返される"""
+        monkeypatch.setenv("USERS_FILE", str(temp_dir / "users_reg.json"))
+
+        from api import create_app
+        app = create_app()
+        client = TestClient(app)
+
+        # ユニークなメールアドレスを使用（UUID）
+        import uuid
+        email = f"new_{uuid.uuid4().hex[:8]}@example.com"
+
+        response = client.post("/users/register", json={"email": email})
+        assert response.status_code == 200
+        data = response.json()
+        assert "user_id" in data
+        assert "api_key" in data
+        assert data["api_key"].startswith("ect_")
+        assert data["plan"] == "free"
+
+    def test_get_current_user_with_auth(self, temp_dir, monkeypatch):
+        """認証済みユーザー情報取得"""
+        monkeypatch.setenv("USERS_FILE", str(temp_dir / "users_me.json"))
+
+        from api import create_app
+        app = create_app()
+        client = TestClient(app)
+
+        # ユニークなメールアドレスを使用（UUID）
+        import uuid
+        email = f"me_{uuid.uuid4().hex[:8]}@example.com"
+
+        # 登録
+        reg_resp = client.post("/users/register", json={"email": email})
+        assert reg_resp.status_code == 200, f"Registration failed: {reg_resp.json()}"
+        api_key = reg_resp.json()["api_key"]
+
+        # 現在のユーザー取得
+        response = client.get("/users/me", headers={"X-API-Key": api_key})
+        assert response.status_code == 200
+        data = response.json()
+        assert data["email"] == email
+        assert data["plan"] == "free"
+
+    def test_create_api_key(self, temp_dir, monkeypatch):
+        """新しいAPIキー作成"""
+        monkeypatch.setenv("USERS_FILE", str(temp_dir / "users_apikey.json"))
+
+        from api import create_app
+        app = create_app()
+        client = TestClient(app)
+
+        # ユニークなメールアドレスを使用（UUID）
+        import uuid
+        email = f"apikey_{uuid.uuid4().hex[:8]}@example.com"
+
+        # 登録
+        reg_resp = client.post("/users/register", json={"email": email})
+        assert reg_resp.status_code == 200, f"Registration failed: {reg_resp.json()}"
+        api_key = reg_resp.json()["api_key"]
+
+        # 新しいAPIキー作成
+        response = client.post(
+            "/users/api-keys",
+            json={"name": "test-key"},
+            headers={"X-API-Key": api_key}
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert "key_id" in data
+        assert "key" in data
+        assert data["name"] == "test-key"
+
+    def test_revoke_api_key(self, temp_dir, monkeypatch):
+        """APIキー無効化"""
+        monkeypatch.setenv("USERS_FILE", str(temp_dir / "users_revoke.json"))
+
+        from api import create_app
+        app = create_app()
+        client = TestClient(app)
+
+        # ユニークなメールアドレスを使用（UUID）
+        import uuid
+        email = f"revoke_{uuid.uuid4().hex[:8]}@example.com"
+
+        # 登録
+        reg_resp = client.post("/users/register", json={"email": email})
+        assert reg_resp.status_code == 200, f"Registration failed: {reg_resp.json()}"
+        api_key = reg_resp.json()["api_key"]
+
+        # 新しいAPIキー作成
+        create_resp = client.post(
+            "/users/api-keys",
+            json={"name": "revoke-key"},
+            headers={"X-API-Key": api_key}
+        )
+        key_id = create_resp.json()["key_id"]
+
+        # APIキー無効化
+        response = client.delete(
+            f"/users/api-keys/{key_id}",
+            headers={"X-API-Key": api_key}
+        )
+        assert response.status_code == 200
+
+    def test_revoke_nonexistent_api_key(self, temp_dir, monkeypatch):
+        """存在しないAPIキー無効化"""
+        monkeypatch.setenv("USERS_FILE", str(temp_dir / "users_revoke2.json"))
+
+        from api import create_app
+        app = create_app()
+        client = TestClient(app)
+
+        # ユニークなメールアドレスを使用（UUID）
+        import uuid
+        email = f"revoke2_{uuid.uuid4().hex[:8]}@example.com"
+
+        # 登録
+        reg_resp = client.post("/users/register", json={"email": email})
+        assert reg_resp.status_code == 200, f"Registration failed: {reg_resp.json()}"
+        api_key = reg_resp.json()["api_key"]
+
+        # 存在しないキー無効化
+        response = client.delete(
+            "/users/api-keys/nonexistent_key_id",
+            headers={"X-API-Key": api_key}
+        )
+        assert response.status_code == 404
+
+
+@pytest.mark.skipif(not FASTAPI_AVAILABLE, reason="FastAPI not installed")
+class TestAPIBillingEndpoints:
+    """課金エンドポイントのテスト"""
+
+    def test_upgrade_plan_invalid_plan(self, temp_dir, monkeypatch):
+        """無効なプランへのアップグレード"""
+        monkeypatch.setenv("USERS_FILE", str(temp_dir / "users_upgrade.json"))
+
+        from api import create_app
+        app = create_app()
+        client = TestClient(app)
+
+        # ユニークなメールアドレスを使用（UUID）
+        import uuid
+        email = f"upgrade_{uuid.uuid4().hex[:8]}@example.com"
+
+        # 登録
+        reg_resp = client.post("/users/register", json={"email": email})
+        assert reg_resp.status_code == 200, f"Registration failed: {reg_resp.json()}"
+        api_key = reg_resp.json()["api_key"]
+
+        # 無効なプラン
+        response = client.post(
+            "/billing/upgrade",
+            json={"plan": "invalid_plan"},
+            headers={"X-API-Key": api_key}
+        )
+        assert response.status_code == 400
+
+    def test_upgrade_to_free_fails(self, temp_dir, monkeypatch):
+        """FREEプランへのアップグレードは失敗"""
+        monkeypatch.setenv("USERS_FILE", str(temp_dir / "users_upgrade2.json"))
+
+        from api import create_app
+        app = create_app()
+        client = TestClient(app)
+
+        # ユニークなメールアドレスを使用（UUID）
+        import uuid
+        email = f"upgrade2_{uuid.uuid4().hex[:8]}@example.com"
+
+        # 登録
+        reg_resp = client.post("/users/register", json={"email": email})
+        assert reg_resp.status_code == 200, f"Registration failed: {reg_resp.json()}"
+        api_key = reg_resp.json()["api_key"]
+
+        # FREEへのアップグレード
+        response = client.post(
+            "/billing/upgrade",
+            json={"plan": "free"},
+            headers={"X-API-Key": api_key}
+        )
+        assert response.status_code == 400
+
+    def test_cancel_free_subscription_fails(self, temp_dir, monkeypatch):
+        """FREEプランのキャンセルは失敗"""
+        monkeypatch.setenv("USERS_FILE", str(temp_dir / "users_cancel.json"))
+
+        from api import create_app
+        app = create_app()
+        client = TestClient(app)
+
+        # ユニークなメールアドレスを使用（UUID）
+        import uuid
+        email = f"cancel_{uuid.uuid4().hex[:8]}@example.com"
+
+        # 登録
+        reg_resp = client.post("/users/register", json={"email": email})
+        assert reg_resp.status_code == 200, f"Registration failed: {reg_resp.json()}"
+        api_key = reg_resp.json()["api_key"]
+
+        # FREEプランキャンセル
+        response = client.post(
+            "/billing/cancel",
+            headers={"X-API-Key": api_key}
+        )
+        assert response.status_code == 400
+
+
+@pytest.mark.skipif(not FASTAPI_AVAILABLE, reason="FastAPI not installed")
+class TestAPITrendsEndpoints:
+    """トレンドエンドポイントのテスト"""
+
+    @pytest.fixture
+    def authenticated_client(self, temp_dir, monkeypatch):
+        """認証済みテストクライアント"""
+        monkeypatch.setenv("USERS_FILE", str(temp_dir / "users_trends.json"))
+
+        from api import create_app
+        app = create_app()
+        client = TestClient(app)
+
+        # ユニークなメールアドレスを使用（UUID）
+        import uuid
+        email = f"trends_{uuid.uuid4().hex[:8]}@example.com"
+
+        # 登録
+        reg_resp = client.post("/users/register", json={"email": email})
+        assert reg_resp.status_code == 200, f"Registration failed: {reg_resp.json()}"
+        api_key = reg_resp.json()["api_key"]
+
+        return client, api_key
+
+    def test_get_trends_authenticated(self, authenticated_client):
+        """認証済みトレンド取得"""
+        client, api_key = authenticated_client
+
+        response = client.get("/trends", headers={"X-API-Key": api_key})
+        assert response.status_code == 200
+        data = response.json()
+        assert "date" in data
+        assert "count" in data
+        assert "trends" in data
+
+    def test_get_trends_with_bearer_auth(self, authenticated_client):
+        """Bearerトークンでのトレンド取得"""
+        client, api_key = authenticated_client
+
+        response = client.get(
+            "/trends",
+            headers={"Authorization": f"Bearer {api_key}"}
+        )
+        assert response.status_code == 200
+
+    def test_get_trends_with_limit(self, authenticated_client):
+        """件数制限付きトレンド取得"""
+        client, api_key = authenticated_client
+
+        response = client.get(
+            "/trends?limit=5",
+            headers={"X-API-Key": api_key}
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert data["count"] <= 5
+
+    def test_get_category_trends(self, authenticated_client):
+        """カテゴリ別トレンド取得"""
+        client, api_key = authenticated_client
+
+        response = client.get(
+            "/trends/categories",
+            headers={"X-API-Key": api_key}
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert "categories" in data
+
+    def test_significant_movers_requires_pro(self, authenticated_client):
+        """大幅変動商品はPRO以上が必要"""
+        client, api_key = authenticated_client
+
+        response = client.get(
+            "/trends/significant",
+            headers={"X-API-Key": api_key}
+        )
+        # FREEユーザーは403
+        assert response.status_code == 403
+
+    def test_export_csv_requires_pro(self, authenticated_client):
+        """CSV出力はPRO以上が必要"""
+        client, api_key = authenticated_client
+
+        response = client.get(
+            "/export/csv",
+            headers={"X-API-Key": api_key}
+        )
+        # FREEユーザーは403
+        assert response.status_code == 403
+
+    def test_export_json_requires_pro(self, authenticated_client):
+        """JSON出力はPRO以上が必要"""
+        client, api_key = authenticated_client
+
+        response = client.get(
+            "/export/json",
+            headers={"X-API-Key": api_key}
+        )
+        # FREEユーザーは403
+        assert response.status_code == 403

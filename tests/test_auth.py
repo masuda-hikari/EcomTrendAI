@@ -378,3 +378,216 @@ class TestAPIKey:
         assert api_key.key_id == "key_123"
         assert api_key.is_active is True
         assert api_key.last_used is None
+
+
+class TestUserEdgeCases:
+    """Userクラスのエッジケーステスト"""
+
+    def test_is_subscription_active_no_expiry(self):
+        """期限未設定（有料プランだが期限なし）"""
+        user = User(
+            user_id="test",
+            email="test@example.com",
+            plan=SubscriptionPlan.PRO,
+            subscription_expires=None,
+        )
+        # 期限が設定されていない場合はFalse
+        assert user.is_subscription_active() is False
+
+    def test_enterprise_unlimited_api_calls(self):
+        """ENTERPRISEプランの無制限API呼び出し"""
+        user = User(
+            user_id="test",
+            email="test@example.com",
+            plan=SubscriptionPlan.ENTERPRISE,
+        )
+        # 制限なし
+        assert user.check_api_limit() is True
+        # 大量に呼び出しても制限に達しない
+        for _ in range(10000):
+            user.increment_api_call()
+        assert user.check_api_limit() is True
+
+    def test_increment_api_call_over_limit(self):
+        """制限超過後のインクリメント"""
+        user = User(user_id="test", email="test@example.com")
+        user.api_calls_today = 100  # FREEプランの制限
+        # 制限超過
+        result = user.increment_api_call()
+        assert result is False
+        assert user.api_calls_today == 100  # 増えない
+
+    def test_can_use_feature_unknown(self):
+        """不明な機能"""
+        user = User(user_id="test", email="test@example.com")
+        assert user.can_use_feature("unknown_feature") is False
+
+    def test_can_use_feature_enterprise(self):
+        """ENTERPRISEプランの全機能"""
+        user = User(
+            user_id="test",
+            email="test@example.com",
+            plan=SubscriptionPlan.ENTERPRISE,
+        )
+        assert user.can_use_feature("realtime_alerts") is True
+        assert user.can_use_feature("custom_dashboard") is True
+        assert user.can_use_feature("export_csv") is True
+        assert user.can_use_feature("export_excel") is True
+        assert user.can_use_feature("api_access") is True
+
+
+class TestAuthServiceEdgeCases:
+    """AuthServiceのエッジケーステスト"""
+
+    @pytest.fixture
+    def temp_dir(self):
+        """一時ディレクトリ"""
+        with tempfile.TemporaryDirectory() as td:
+            yield Path(td)
+
+    @pytest.fixture
+    def auth_service(self, temp_dir):
+        """AuthServiceインスタンス"""
+        return AuthService(users_file=temp_dir / "users.json")
+
+    def test_get_user_not_found(self, auth_service):
+        """存在しないユーザー取得"""
+        user = auth_service.get_user("nonexistent_id")
+        assert user is None
+
+    def test_get_user_by_email_not_found(self, auth_service):
+        """存在しないメールでユーザー取得"""
+        user = auth_service.get_user_by_email("nonexistent@example.com")
+        assert user is None
+
+    def test_update_subscription_user_not_found(self, auth_service):
+        """存在しないユーザーのサブスクリプション更新"""
+        result = auth_service.update_subscription(
+            "nonexistent_id",
+            SubscriptionPlan.PRO,
+            "sub_123",
+            datetime.now() + timedelta(days=30),
+        )
+        assert result is False
+
+    def test_downgrade_to_free_user_not_found(self, auth_service):
+        """存在しないユーザーのダウングレード"""
+        result = auth_service.downgrade_to_free("nonexistent_id")
+        assert result is False
+
+    def test_generate_api_key_user_not_found(self, auth_service):
+        """存在しないユーザーのAPIキー生成"""
+        result = auth_service.generate_api_key("nonexistent_id", "test-key")
+        assert result is None
+
+    def test_revoke_nonexistent_api_key(self, auth_service):
+        """存在しないAPIキーの無効化"""
+        result = auth_service.revoke_api_key("nonexistent_key_id")
+        assert result is False
+
+    def test_cancel_subscription_success(self, auth_service):
+        """サブスクリプションキャンセル成功（期間終了後にFREE）"""
+        user = auth_service.create_user("test@example.com")
+        auth_service.update_subscription(
+            user.user_id,
+            SubscriptionPlan.PRO,
+            "sub_123",
+            datetime.now() + timedelta(days=30),
+        )
+        # キャンセルリクエストは成功（即時ダウングレードではない）
+        result = auth_service.cancel_subscription(user.user_id)
+        assert result is True
+
+    def test_cancel_subscription_user_not_found(self, auth_service):
+        """存在しないユーザーのキャンセル"""
+        result = auth_service.cancel_subscription("nonexistent_id")
+        assert result is False
+
+
+class TestBillingManagerEdgeCases:
+    """BillingManagerのエッジケーステスト"""
+
+    @pytest.fixture
+    def temp_dir(self):
+        """一時ディレクトリ"""
+        with tempfile.TemporaryDirectory() as td:
+            yield Path(td)
+
+    @pytest.fixture
+    def billing_manager(self, temp_dir):
+        """BillingManagerインスタンス"""
+        auth = AuthService(users_file=temp_dir / "users.json")
+        return BillingManager(auth_service=auth)
+
+    def test_handle_checkout_completed_customer_not_found(self, billing_manager):
+        """存在しない顧客のCheckout完了"""
+        data = {
+            "customer": "cus_nonexistent",
+            "subscription": "sub_456",
+        }
+        result = billing_manager._handle_checkout_completed(data)
+        assert result is False
+
+    def test_handle_subscription_deleted_not_found(self, billing_manager):
+        """存在しないサブスクリプションの削除"""
+        data = {"id": "sub_nonexistent"}
+        result = billing_manager._handle_subscription_deleted(data)
+        assert result is False
+
+    def test_handle_subscription_updated(self, billing_manager):
+        """サブスクリプション更新Webhookハンドラ"""
+        user, _ = billing_manager.register_user("test@example.com")
+        billing_manager.auth.update_subscription(
+            user.user_id,
+            SubscriptionPlan.PRO,
+            "sub_update_test",
+            datetime.now() + timedelta(days=30),
+        )
+
+        data = {
+            "id": "sub_update_test",
+            "status": "active",
+            "current_period_end": (datetime.now() + timedelta(days=60)).timestamp()
+        }
+        result = billing_manager._handle_subscription_updated(data)
+        assert result is True
+
+    def test_handle_payment_failed(self, billing_manager):
+        """支払い失敗Webhookハンドラ"""
+        user, _ = billing_manager.register_user("test@example.com")
+        user.stripe_customer_id = "cus_payment_fail"
+        billing_manager.auth._save_users()
+
+        data = {"customer": "cus_payment_fail"}
+        result = billing_manager._handle_payment_failed(data)
+        assert result is True
+
+    def test_handle_webhook_event_checkout_completed(self, billing_manager):
+        """Webhookイベント: checkout.session.completed"""
+        user, _ = billing_manager.register_user("webhook@example.com")
+        user.stripe_customer_id = "cus_webhook"
+        billing_manager.auth._save_users()
+
+        event = {
+            "type": "checkout.session.completed",
+            "data": {
+                "object": {
+                    "customer": "cus_webhook",
+                    "subscription": "sub_webhook",
+                }
+            }
+        }
+        result = billing_manager.handle_webhook_event(event)
+        assert result is True
+
+    def test_upgrade_plan_without_stripe(self, billing_manager):
+        """Stripe未設定時のアップグレード"""
+        user, _ = billing_manager.register_user("upgrade@example.com")
+        # Stripeが設定されていない場合はNone
+        result = billing_manager.upgrade_plan(
+            user.user_id,
+            SubscriptionPlan.PRO,
+            "https://success.url",
+            "https://cancel.url",
+        )
+        assert result is None

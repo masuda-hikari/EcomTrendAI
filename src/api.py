@@ -78,10 +78,9 @@ if FASTAPI_AVAILABLE:
         asin: str
         category: str
         current_rank: int
-        previous_rank: Optional[int]
-        rank_change: int
         rank_change_percent: float
         price: Optional[float]
+        trend_score: float
         affiliate_url: str
 
     class TrendsResponse(BaseModel):
@@ -529,10 +528,9 @@ EcomTrendAIへのお問い合わせがありました。
                 "asin": t.asin,
                 "category": t.category,
                 "current_rank": t.current_rank,
-                "previous_rank": t.previous_rank,
-                "rank_change": t.rank_change,
                 "rank_change_percent": t.rank_change_percent,
                 "price": t.price,
+                "trend_score": t.trend_score,
                 "affiliate_url": get_affiliate_url(t.asin),
             })
 
