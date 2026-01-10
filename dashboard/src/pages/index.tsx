@@ -76,10 +76,10 @@ export default function Home() {
                   無料で始める
                 </Link>
                 <Link
-                  href="/pricing"
+                  href="/sample-report"
                   className="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-white/10 transition-all"
                 >
-                  料金プランを見る
+                  サンプルレポートを見る
                 </Link>
               </div>
               <p className="mt-6 text-primary-200 text-sm flex items-center justify-center gap-4 flex-wrap">

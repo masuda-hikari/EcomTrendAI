@@ -40,6 +40,9 @@ export default function Header() {
             <Link href="/#features" className="text-gray-600 hover:text-gray-900 transition-colors">
               機能
             </Link>
+            <Link href="/sample-report" className="text-gray-600 hover:text-gray-900 transition-colors">
+              サンプルレポート
+            </Link>
             <Link href="/pricing" className="text-gray-600 hover:text-gray-900 transition-colors">
               料金
             </Link>
@@ -100,6 +103,13 @@ export default function Header() {
                 onClick={closeMobileMenu}
               >
                 機能
+              </Link>
+              <Link
+                href="/sample-report"
+                className="text-gray-600 hover:text-gray-900 py-2 transition-colors"
+                onClick={closeMobileMenu}
+              >
+                サンプルレポート
               </Link>
               <Link
                 href="/pricing"
