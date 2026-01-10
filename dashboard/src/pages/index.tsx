@@ -1,5 +1,6 @@
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import EmailCapture from '@/components/EmailCapture';
 import Link from 'next/link';
 import Head from 'next/head';
 import { useState } from 'react';
@@ -35,6 +36,13 @@ export default function Home() {
         <meta property="og:title" content="EcomTrendAI - AIによるEコマーストレンド分析" />
         <meta property="og:description" content="Amazonの急上昇商品をAIで検出。せどり・物販の仕入れ判断をサポートします。" />
         <meta property="og:type" content="website" />
+        <meta property="og:image" content="/api/og?title=AIで見つける次の売れ筋商品&subtitle=Amazonのトレンドをリアルタイムで分析" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="EcomTrendAI - AIによるEコマーストレンド分析" />
+        <meta name="twitter:description" content="Amazonの急上昇商品をAIで検出。せどり・物販の仕入れ判断をサポートします。" />
+        <meta name="twitter:image" content="/api/og?title=AIで見つける次の売れ筋商品&subtitle=Amazonのトレンドをリアルタイムで分析" />
       </Head>
 
       <Header />
@@ -325,6 +333,14 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        {/* メールキャプチャセクション */}
+        <EmailCapture
+          variant="banner"
+          title="無料トレンドレポートを毎朝お届け"
+          description="メールアドレスを登録するだけで、毎朝8時に最新のトレンドレポートをお届けします。"
+          buttonText="登録する"
+        />
 
         {/* FAQセクション */}
         <section className="py-24 bg-white">

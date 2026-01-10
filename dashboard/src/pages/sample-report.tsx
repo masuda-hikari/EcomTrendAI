@@ -2,6 +2,8 @@ import Head from 'next/head';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import SocialShare from '@/components/SocialShare';
+import EmailCapture from '@/components/EmailCapture';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 
 // サンプルトレンドデータ
@@ -48,6 +50,13 @@ export default function SampleReport() {
         <meta name="description" content="EcomTrendAIのサンプルトレンド分析レポート。実際のレポートでどのような情報が得られるかをご確認ください。" />
         <meta property="og:title" content="サンプルレポート - EcomTrendAI" />
         <meta property="og:description" content="AIによるEコマーストレンド分析のサンプルレポート" />
+        <meta property="og:image" content="/api/og?title=トレンド分析レポート&subtitle=急上昇商品TOP10を確認&type=report" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="サンプルレポート - EcomTrendAI" />
+        <meta name="twitter:description" content="AIによるEコマーストレンド分析のサンプルレポート" />
+        <meta name="twitter:image" content="/api/og?title=トレンド分析レポート&subtitle=急上昇商品TOP10を確認&type=report" />
       </Head>
 
       <Header />
@@ -78,15 +87,22 @@ export default function SampleReport() {
                   レポート生成日: {today}
                 </p>
               </div>
-              <div className="mt-4 md:mt-0 flex gap-4">
-                <div className="text-center px-4 py-2 bg-green-50 rounded-lg">
-                  <div className="text-2xl font-bold text-green-600">10,234</div>
-                  <div className="text-xs text-green-700">分析商品数</div>
+              <div className="mt-4 md:mt-0 flex flex-col md:flex-row items-center gap-4">
+                <div className="flex gap-4">
+                  <div className="text-center px-4 py-2 bg-green-50 rounded-lg">
+                    <div className="text-2xl font-bold text-green-600">10,234</div>
+                    <div className="text-xs text-green-700">分析商品数</div>
+                  </div>
+                  <div className="text-center px-4 py-2 bg-blue-50 rounded-lg">
+                    <div className="text-2xl font-bold text-blue-600">156</div>
+                    <div className="text-xs text-blue-700">急上昇検出</div>
+                  </div>
                 </div>
-                <div className="text-center px-4 py-2 bg-blue-50 rounded-lg">
-                  <div className="text-2xl font-bold text-blue-600">156</div>
-                  <div className="text-xs text-blue-700">急上昇検出</div>
-                </div>
+                {/* ソーシャルシェアボタン */}
+                <SocialShare
+                  title="Amazonトレンド分析レポート - EcomTrendAI"
+                  description="AIがAmazonの急上昇商品を検出！せどり・EC事業者必見のトレンド分析。"
+                />
               </div>
             </div>
           </div>
@@ -302,6 +318,44 @@ export default function SampleReport() {
                 </Link>
               </div>
             </div>
+          </div>
+
+          {/* メールキャプチャセクション */}
+          <div className="mt-12 grid lg:grid-cols-2 gap-8 items-center">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                毎日のトレンドレポートを<br className="hidden sm:block" />無料で受け取りませんか？
+              </h2>
+              <p className="text-gray-600 mb-6">
+                登録するだけで、毎朝8時に最新のトレンドレポートをお届け。
+                急上昇商品の情報をいち早くキャッチして、ビジネスチャンスを逃しません。
+              </p>
+              <ul className="space-y-3 text-gray-600">
+                <li className="flex items-center gap-3">
+                  <svg className="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  毎朝8時に自動配信
+                </li>
+                <li className="flex items-center gap-3">
+                  <svg className="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  急上昇TOP10を厳選してお届け
+                </li>
+                <li className="flex items-center gap-3">
+                  <svg className="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  完全無料・いつでも解除可能
+                </li>
+              </ul>
+            </div>
+            <EmailCapture
+              title="無料トレンドレポートに登録"
+              description="メールアドレスを入力するだけで、毎日のトレンドレポートを受け取れます。"
+              buttonText="無料で登録する"
+            />
           </div>
 
           {/* 機能比較 */}

@@ -1,10 +1,10 @@
-﻿# EcomTrendAI - ステータス
+# EcomTrendAI - ステータス
 
 最終更新: 2026-01-11
 
 ## 現在の状態
-- 状態: Phase 14 収益化加速機能完了・本番デプロイ待ち
-- 進捗: テスト167件全パス、カバレッジ81%、フロントエンドビルド成功（13ページ）
+- 状態: Phase 15 収益化強化完了・本番デプロイ待ち
+- 進捗: テスト167件全パス、カバレッジ81%、フロントエンドビルド成功（13ページ + OGP API）
 
 ## 次のアクション
 1. **Vercel連携**: https://vercel.com/new でプロジェクト作成、GitHubリポジトリ連携
@@ -13,18 +13,20 @@
 4. **ドメイン取得**: ecomtrend.ai
 
 ## 最近の変更
+- 2026-01-11: Phase 15 収益化強化機能
+  - ソーシャルシェアボタン追加（Twitter/X, Facebook, LINE, リンクコピー）
+    - `SocialShare.tsx` コンポーネント作成
+    - サンプルレポートページに配置
+  - メールキャプチャ機能追加
+    - `EmailCapture.tsx` コンポーネント作成（3バリアント: inline, card, banner）
+    - ランディングページにバナー配置
+    - サンプルレポートにカードフォーム配置
+    - 無料トレンドレポート登録フロー
+  - OGP画像動的生成
+    - `/api/og` エンドポイント作成（@vercel/og使用）
+    - ランディングページ・サンプルレポートにOGPメタタグ追加
+    - Twitter Card対応
 - 2026-01-11: Phase 14 収益化加速機能
-  - サンプルレポートページ追加（`/sample-report`）
-    - トレンドTOP10リスト表示
-    - ランク推移グラフ（recharts）
-    - カテゴリ別検出数グラフ
-    - 機能比較テーブル
-    - 複数のCTAボタン配置
-  - ヘッダーにサンプルレポートリンク追加
-  - ランディングページCTAを「サンプルレポートを見る」に変更
-  - Renderワンクリックデプロイ対応（`render.yaml`）
-  - デプロイガイド作成（`docs/DEPLOY_GUIDE.md`）
-  - E2Eテスト追加（`sample-report.spec.ts`）
 - 2026-01-11: Phase 13 UI/UX改善
 - 2026-01-10: Phase 12 セキュリティ監査・デプロイ準備完了
 - 2026-01-10: Phase 11 テストカバレッジ80%達成
@@ -33,14 +35,14 @@
 - バックエンド: 167件合格
 - カバレッジ: 81%（目標80%達成）
 - フロントエンドLint: エラーなし
-- フロントエンドビルド: 13ページ成功
+- フロントエンドビルド: 13ページ + 1 API成功
 - セキュリティスキャン: bandit PASS / pip-audit PASS
 
-## ページ一覧（13ページ）
+## ページ一覧（13ページ + 1 API）
 | ページ | パス | 説明 |
 |--------|------|------|
-| トップ | `/` | ランディングページ |
-| **サンプルレポート** | `/sample-report` | トレンド分析サンプル（NEW） |
+| トップ | `/` | ランディングページ（メールキャプチャバナー追加） |
+| サンプルレポート | `/sample-report` | トレンド分析サンプル（ソーシャルシェア・メールキャプチャ追加） |
 | ログイン | `/login` | ユーザーログイン |
 | 登録 | `/register` | ユーザー登録 |
 | 料金 | `/pricing` | 料金プラン |
@@ -50,6 +52,13 @@
 | 利用規約 | `/terms` | サービス利用規約 |
 | 特商法表記 | `/legal/commerce` | 特定商取引法表記 |
 | お問い合わせ | `/contact` | お問い合わせフォーム |
+| **OGP画像生成** | `/api/og` | 動的OGP画像生成API（NEW） |
+
+## 新規コンポーネント（Phase 15）
+| コンポーネント | パス | 機能 |
+|---------------|------|------|
+| SocialShare | `components/SocialShare.tsx` | SNSシェアボタン（Twitter/X, Facebook, LINE, リンクコピー） |
+| EmailCapture | `components/EmailCapture.tsx` | メール登録フォーム（inline/card/banner 3バリアント） |
 
 ## デプロイ構成
 
@@ -135,3 +144,4 @@ docker-compose run --rm certbot certonly --webroot -w /var/www/certbot -d api.ec
 - インフラ: Docker + Nginx + Let's Encrypt / Vercel + Render
 - CI/CD: GitHub Actions + Vercel
 - テスト: pytest + Playwright
+- OGP生成: @vercel/og
