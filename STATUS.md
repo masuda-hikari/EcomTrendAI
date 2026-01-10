@@ -3,17 +3,22 @@
 最終更新: 2026-01-10
 
 ## 現在の状態
-- 状態: Phase 7 法務対応完了
-- 進捗: プライバシーポリシー、利用規約、特定商取引法表記、お問い合わせページ追加
+- 状態: Phase 8 お問い合わせAPI実装完了
+- 進捗: お問い合わせフォームのバックエンドAPI実装、フロントエンド接続完了
 
 ## 次のアクション
-1. **GitHubリポジトリ作成・Push**: コードをGitHubにpush
-2. **Vercel連携**: https://vercel.com/new でプロジェクト作成
-3. **Stripeアカウント本番設定**: `docs/STRIPE_SETUP.md` に従い設定
-4. **VPS/クラウドサーバー契約**: バックエンドAPI用
-5. **Docker Composeデプロイ**: `docker-compose up -d`
+1. **Vercel連携**: https://vercel.com/new でプロジェクト作成
+2. **Stripeアカウント本番設定**: `docs/STRIPE_SETUP.md` に従い設定
+3. **VPS/クラウドサーバー契約**: バックエンドAPI用
+4. **Docker Composeデプロイ**: `docker-compose up -d`
+5. **ドメイン取得**: ecomtrend.ai
 
 ## 最近の変更
+- 2026-01-10: Phase 8 お問い合わせAPI実装
+  - POST /contact エンドポイント追加
+  - 管理者へのメール通知機能
+  - フロントエンドをAPIに接続
+  - テスト追加（80件全パス）
 - 2026-01-10: Phase 7 法務対応
   - プライバシーポリシーページ追加 (`dashboard/src/pages/privacy.tsx`)
   - 利用規約ページ追加 (`dashboard/src/pages/terms.tsx`)
