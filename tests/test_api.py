@@ -106,6 +106,64 @@ class TestAPIEndpoints:
         assert "pro" in plan_ids
         assert "enterprise" in plan_ids
 
+    def test_contact_endpoint_success(self, client):
+        """お問い合わせエンドポイント - 正常系"""
+        response = client.post(
+            "/contact",
+            json={
+                "name": "テスト 太郎",
+                "email": "test@example.com",
+                "category": "general",
+                "message": "これはテストメッセージです。"
+            }
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert data["success"] is True
+        assert "message" in data
+
+    def test_contact_endpoint_invalid_email(self, client):
+        """お問い合わせエンドポイント - 無効なメールアドレス"""
+        response = client.post(
+            "/contact",
+            json={
+                "name": "テスト",
+                "email": "invalid-email",
+                "category": "general",
+                "message": "テスト"
+            }
+        )
+        assert response.status_code == 422  # Validation Error
+
+    def test_contact_endpoint_missing_fields(self, client):
+        """お問い合わせエンドポイント - 必須フィールド欠落"""
+        response = client.post(
+            "/contact",
+            json={
+                "name": "テスト"
+                # email, category, message が欠落
+            }
+        )
+        assert response.status_code == 422  # Validation Error
+
+    def test_contact_endpoint_all_categories(self, client):
+        """お問い合わせエンドポイント - 全カテゴリテスト"""
+        categories = [
+            "general", "sales", "technical", "billing",
+            "privacy", "bug", "feature", "partnership", "other"
+        ]
+        for category in categories:
+            response = client.post(
+                "/contact",
+                json={
+                    "name": "カテゴリテスト",
+                    "email": "test@example.com",
+                    "category": category,
+                    "message": f"カテゴリ: {category}"
+                }
+            )
+            assert response.status_code == 200
+
 
 class TestAuthEndpoints:
     """認証エンドポイントのテスト（モック使用）"""

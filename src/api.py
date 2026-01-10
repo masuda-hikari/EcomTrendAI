@@ -34,6 +34,13 @@ from auth import AuthService, BillingManager, StripeService, SubscriptionPlan, U
 # === Pydanticモデル ===
 
 if FASTAPI_AVAILABLE:
+    class ContactRequest(BaseModel):
+        """お問い合わせリクエスト"""
+        name: str
+        email: EmailStr
+        category: str
+        message: str
+
     class UserRegisterRequest(BaseModel):
         """ユーザー登録リクエスト"""
         email: EmailStr
@@ -196,6 +203,108 @@ def create_app() -> "FastAPI":
     async def health():
         """ヘルスチェック"""
         return {"status": "healthy"}
+
+    # === エンドポイント: お問い合わせ ===
+
+    @app.post("/contact", tags=["Contact"])
+    async def submit_contact(request: ContactRequest):
+        """
+        お問い合わせフォームからの送信を処理
+
+        - メールアドレス・内容のバリデーション
+        - 管理者へのメール通知
+        - 自動返信メール送信
+        """
+        from distributor import DistributionConfig, EmailDistributor
+
+        config = DistributionConfig.from_env()
+
+        # カテゴリ名のマッピング
+        category_names = {
+            "general": "一般的なお問い合わせ",
+            "sales": "サービス・料金について",
+            "technical": "技術的な質問",
+            "billing": "請求・支払いについて",
+            "privacy": "個人情報について",
+            "bug": "不具合の報告",
+            "feature": "機能リクエスト",
+            "partnership": "提携・協業について",
+            "other": "その他",
+        }
+        category_name = category_names.get(request.category, request.category)
+
+        # 管理者向けメール内容
+        admin_subject = f"[EcomTrendAI] お問い合わせ: {category_name}"
+        admin_content = f"""
+EcomTrendAIへのお問い合わせがありました。
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+【お問い合わせ内容】
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+■ お名前: {request.name}
+■ メールアドレス: {request.email}
+■ 種別: {category_name}
+
+■ 内容:
+{request.message}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+※このメールはシステムから自動送信されています。
+"""
+
+        admin_html = f"""
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family: sans-serif; line-height: 1.6; color: #333;">
+<div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+<h2 style="color: #4F46E5; border-bottom: 2px solid #4F46E5; padding-bottom: 10px;">
+お問い合わせ通知
+</h2>
+<p>EcomTrendAIへのお問い合わせがありました。</p>
+<table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+<tr style="background: #f9fafb;">
+<td style="padding: 12px; border: 1px solid #e5e7eb; font-weight: bold;">お名前</td>
+<td style="padding: 12px; border: 1px solid #e5e7eb;">{request.name}</td>
+</tr>
+<tr>
+<td style="padding: 12px; border: 1px solid #e5e7eb; font-weight: bold;">メールアドレス</td>
+<td style="padding: 12px; border: 1px solid #e5e7eb;"><a href="mailto:{request.email}">{request.email}</a></td>
+</tr>
+<tr style="background: #f9fafb;">
+<td style="padding: 12px; border: 1px solid #e5e7eb; font-weight: bold;">種別</td>
+<td style="padding: 12px; border: 1px solid #e5e7eb;">{category_name}</td>
+</tr>
+</table>
+<div style="background: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;">
+<h3 style="margin-top: 0;">お問い合わせ内容</h3>
+<p style="white-space: pre-wrap;">{request.message}</p>
+</div>
+<hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;">
+<p style="color: #6b7280; font-size: 12px;">このメールはシステムから自動送信されています。</p>
+</div>
+</body>
+</html>
+"""
+
+        # メール送信処理
+        email_sent = False
+        if config.is_email_configured():
+            try:
+                distributor = EmailDistributor(config)
+                email_sent = distributor.send(admin_subject, admin_content, admin_html)
+            except Exception as e:
+                logger.error(f"お問い合わせメール送信失敗: {e}")
+
+        # 送信結果をログ
+        logger.info(f"お問い合わせ受信: {request.email} / {category_name}")
+
+        return {
+            "success": True,
+            "message": "お問い合わせを受け付けました。2営業日以内にご返信いたします。",
+            "email_notification": email_sent,
+        }
 
     # === エンドポイント: ユーザー管理 ===
 

@@ -24,10 +24,20 @@ export default function Contact() {
     e.preventDefault();
     setStatus('sending');
 
-    // TODO: 実際のバックエンドAPI実装時に置き換え
-    // 現在はデモ用の模擬送信
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+      const response = await fetch(`${apiUrl}/contact`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        throw new Error('送信に失敗しました');
+      }
+
       setStatus('sent');
       setFormData({ name: '', email: '', category: 'general', message: '' });
     } catch {
