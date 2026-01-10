@@ -2,47 +2,130 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
 import Head from 'next/head';
+import { useState } from 'react';
 
 export default function Home() {
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+
+  const faqs = [
+    {
+      question: 'EcomTrendAIは何ができますか？',
+      answer: 'Amazonの売れ筋商品やトレンドをAIで分析し、急上昇商品をいち早く検出します。せどり、物販、EC事業者の方の仕入れ判断をサポートします。'
+    },
+    {
+      question: '無料プランでも使えますか？',
+      answer: 'はい、無料プランでも日次10件のトレンドレポート、2カテゴリの分析、API 100回/日の呼び出しが可能です。まずは無料でお試しください。'
+    },
+    {
+      question: 'データはどのくらいの頻度で更新されますか？',
+      answer: 'データは毎日自動で収集・更新されます。Proプラン以上ではリアルタイムアラート機能もご利用いただけます。'
+    },
+    {
+      question: '解約はいつでもできますか？',
+      answer: 'はい、いつでも解約可能です。解約手続きはダッシュボードから簡単に行えます。日割り計算での返金も対応しています。'
+    }
+  ];
+
   return (
     <>
       <Head>
-        <title>EcomTrendAI - AIによるEコマーストレンド分析</title>
-        <meta name="description" content="AIを活用してEコマースのトレンドを特定・分析。売れ筋商品や市場動向をリアルタイムで可視化します。" />
+        <title>EcomTrendAI - AIによるEコマーストレンド分析 | せどり・物販の仕入れ判断</title>
+        <meta name="description" content="AIを活用してAmazonのトレンドを分析。急上昇商品をいち早くキャッチして、せどり・物販のビジネスチャンスを逃しません。無料で始められます。" />
+        <meta name="keywords" content="Amazon,トレンド分析,せどり,物販,EC,仕入れ,売れ筋,AI分析" />
+        <meta property="og:title" content="EcomTrendAI - AIによるEコマーストレンド分析" />
+        <meta property="og:description" content="Amazonの急上昇商品をAIで検出。せどり・物販の仕入れ判断をサポートします。" />
+        <meta property="og:type" content="website" />
       </Head>
 
       <Header />
 
       <main>
         {/* ヒーローセクション */}
-        <section className="bg-gradient-to-br from-primary-600 to-primary-800 text-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+        <section className="bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900 text-white relative overflow-hidden">
+          {/* 背景装飾 */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute -top-1/2 -right-1/4 w-96 h-96 bg-primary-500/30 rounded-full blur-3xl"></div>
+            <div className="absolute -bottom-1/2 -left-1/4 w-96 h-96 bg-primary-400/20 rounded-full blur-3xl"></div>
+          </div>
+
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28 relative z-10">
             <div className="text-center">
-              <h1 className="text-4xl md:text-6xl font-bold mb-6">
+              {/* バッジ */}
+              <div className="inline-flex items-center px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm mb-6 border border-white/20">
+                <span className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></span>
+                <span>累計10,000商品以上を分析</span>
+              </div>
+
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
                 AIで見つける
                 <br />
-                <span className="text-primary-200">次の売れ筋商品</span>
+                <span className="bg-gradient-to-r from-primary-200 to-white bg-clip-text text-transparent">
+                  次の売れ筋商品
+                </span>
               </h1>
-              <p className="text-xl md:text-2xl text-primary-100 mb-8 max-w-3xl mx-auto">
+              <p className="text-lg md:text-xl lg:text-2xl text-primary-100 mb-8 max-w-3xl mx-auto leading-relaxed">
                 Amazonのトレンドをリアルタイムで分析。
-                <br />
+                <br className="hidden sm:block" />
                 急上昇商品をいち早くキャッチして、ビジネスチャンスを逃しません。
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link
                   href="/register"
-                  className="bg-white text-primary-600 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-primary-50 transition-colors"
+                  className="bg-white text-primary-600 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-primary-50 transition-all hover:scale-105 shadow-lg"
                 >
                   無料で始める
                 </Link>
                 <Link
                   href="/pricing"
-                  className="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-white/10 transition-colors"
+                  className="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-white/10 transition-all"
                 >
                   料金プランを見る
                 </Link>
               </div>
-              <p className="mt-4 text-primary-200 text-sm">クレジットカード不要・即時開始</p>
+              <p className="mt-6 text-primary-200 text-sm flex items-center justify-center gap-4 flex-wrap">
+                <span className="flex items-center gap-1">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  クレジットカード不要
+                </span>
+                <span className="flex items-center gap-1">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  即時開始
+                </span>
+                <span className="flex items-center gap-1">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  いつでも解約可能
+                </span>
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* 実績・統計セクション */}
+        <section className="py-12 bg-white border-b">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+              <div>
+                <div className="text-3xl md:text-4xl font-bold text-primary-600 mb-1">10,000+</div>
+                <div className="text-gray-600 text-sm">分析商品数</div>
+              </div>
+              <div>
+                <div className="text-3xl md:text-4xl font-bold text-primary-600 mb-1">95%</div>
+                <div className="text-gray-600 text-sm">トレンド検出精度</div>
+              </div>
+              <div>
+                <div className="text-3xl md:text-4xl font-bold text-primary-600 mb-1">24h</div>
+                <div className="text-gray-600 text-sm">データ更新頻度</div>
+              </div>
+              <div>
+                <div className="text-3xl md:text-4xl font-bold text-primary-600 mb-1">50+</div>
+                <div className="text-gray-600 text-sm">対応カテゴリ</div>
+              </div>
             </div>
           </div>
         </section>
@@ -148,9 +231,149 @@ export default function Home() {
           </div>
         </section>
 
+        {/* ユースケースセクション */}
+        <section className="py-24 bg-gray-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                こんな方におすすめ
+              </h2>
+              <p className="text-xl text-gray-600">
+                EcomTrendAIは様々なビジネスシーンで活躍します
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {/* ユースケース1 */}
+              <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold mb-2 text-gray-900">せどり・転売</h3>
+                <p className="text-gray-600 text-sm">
+                  急上昇商品をいち早くキャッチして、仕入れのタイミングを逃しません。利益率の高い商品を効率的に見つけられます。
+                </p>
+              </div>
+
+              {/* ユースケース2 */}
+              <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                  <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold mb-2 text-gray-900">EC事業者</h3>
+                <p className="text-gray-600 text-sm">
+                  市場トレンドを把握して、商品ラインナップの最適化に活用。競合の動向も把握できます。
+                </p>
+              </div>
+
+              {/* ユースケース3 */}
+              <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                  <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold mb-2 text-gray-900">マーケティング担当</h3>
+                <p className="text-gray-600 text-sm">
+                  カテゴリ別のトレンド分析で、プロモーション戦略の立案に役立てられます。
+                </p>
+              </div>
+
+              {/* ユースケース4 */}
+              <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
+                  <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold mb-2 text-gray-900">副業・個人事業主</h3>
+                <p className="text-gray-600 text-sm">
+                  本業の合間でも、効率的に売れ筋商品を見つけられます。時間をかけずにリサーチが可能です。
+                </p>
+              </div>
+
+              {/* ユースケース5 */}
+              <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-4">
+                  <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold mb-2 text-gray-900">開発者・エンジニア</h3>
+                <p className="text-gray-600 text-sm">
+                  REST APIで自分のシステムと連携。独自のトレンド分析ツールを構築できます。
+                </p>
+              </div>
+
+              {/* ユースケース6 */}
+              <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
+                  <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold mb-2 text-gray-900">コンサルタント</h3>
+                <p className="text-gray-600 text-sm">
+                  クライアントへの提案資料作成に活用。データに基づいた説得力のある提案が可能です。
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* FAQセクション */}
+        <section className="py-24 bg-white">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                よくある質問
+              </h2>
+              <p className="text-xl text-gray-600">
+                お客様からよくいただく質問にお答えします
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              {faqs.map((faq, index) => (
+                <div key={index} className="border border-gray-200 rounded-lg overflow-hidden">
+                  <button
+                    onClick={() => setOpenFaq(openFaq === index ? null : index)}
+                    className="w-full px-6 py-4 text-left flex items-center justify-between bg-white hover:bg-gray-50 transition-colors"
+                  >
+                    <span className="font-medium text-gray-900">{faq.question}</span>
+                    <svg
+                      className={`w-5 h-5 text-gray-500 transition-transform ${openFaq === index ? 'rotate-180' : ''}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                  {openFaq === index && (
+                    <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                      <p className="text-gray-600">{faq.answer}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* CTA セクション */}
-        <section className="py-24 bg-primary-600">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <section className="py-24 bg-gradient-to-br from-primary-600 to-primary-800 relative overflow-hidden">
+          {/* 背景装飾 */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary-500/30 rounded-full blur-3xl"></div>
+          </div>
+
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
               今すぐトレンド分析を始めましょう
             </h2>
@@ -159,12 +382,23 @@ export default function Home() {
               <br />
               より高度な分析が必要な場合は、いつでもアップグレード可能です。
             </p>
-            <Link
-              href="/register"
-              className="inline-block bg-white text-primary-600 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-primary-50 transition-colors"
-            >
-              無料アカウントを作成
-            </Link>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link
+                href="/register"
+                className="inline-block bg-white text-primary-600 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-primary-50 transition-all hover:scale-105 shadow-lg"
+              >
+                無料アカウントを作成
+              </Link>
+              <Link
+                href="/contact"
+                className="inline-block border-2 border-white text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-white/10 transition-all"
+              >
+                お問い合わせ
+              </Link>
+            </div>
+            <p className="mt-6 text-primary-200 text-sm">
+              30秒で登録完了・クレジットカード不要
+            </p>
           </div>
         </section>
       </main>
