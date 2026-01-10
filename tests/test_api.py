@@ -298,3 +298,56 @@ class TestUserStatus:
         assert status["plan"] == "pro"
         assert status["plan_name"] == "Pro"
         assert status["limits"]["realtime_alerts"] is True
+
+
+class TestWebhookHandling:
+    """Webhook処理のテスト"""
+
+    def test_handle_unknown_webhook_event(self, billing_manager):
+        """未知のWebhookイベント処理"""
+        event = {
+            "type": "unknown.event.type",
+            "data": {"object": {}}
+        }
+        result = billing_manager.handle_webhook_event(event)
+        assert result is True  # 未知イベントは無視
+
+    def test_handle_subscription_updated(self, billing_manager, auth_service):
+        """サブスクリプション更新Webhook"""
+        user = auth_service.create_user("webhook@example.com")
+        auth_service.update_subscription(
+            user.user_id,
+            SubscriptionPlan.PRO,
+            "sub_update_test",
+            datetime.now() + timedelta(days=30),
+        )
+
+        event = {
+            "type": "customer.subscription.updated",
+            "data": {
+                "object": {
+                    "id": "sub_update_test",
+                    "status": "active",
+                    "current_period_end": (datetime.now() + timedelta(days=60)).timestamp()
+                }
+            }
+        }
+        result = billing_manager.handle_webhook_event(event)
+        assert result is True
+
+    def test_handle_payment_failed(self, billing_manager, auth_service):
+        """支払い失敗Webhook"""
+        user = auth_service.create_user("payment-fail@example.com")
+        user.stripe_customer_id = "cus_payment_fail"
+        auth_service._save_users()
+
+        event = {
+            "type": "invoice.payment_failed",
+            "data": {
+                "object": {
+                    "customer": "cus_payment_fail"
+                }
+            }
+        }
+        result = billing_manager.handle_webhook_event(event)
+        assert result is True

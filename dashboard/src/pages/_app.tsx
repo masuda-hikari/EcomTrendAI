@@ -3,13 +3,72 @@ import type { AppProps } from 'next/app';
 import Head from 'next/head';
 
 export default function App({ Component, pageProps }: AppProps) {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://ecomtrend.ai';
+
   return (
     <>
       <Head>
-        <title>EcomTrendAI - Eコマーストレンド分析</title>
-        <meta name="description" content="AIを活用してEコマースのトレンドを特定・分析。売れ筋商品や市場動向を可視化します。" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        {/* 基本メタタグ */}
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+        <meta name="theme-color" content="#4F46E5" />
+
+        {/* 基本SEO */}
+        <title>EcomTrendAI - AIによるEコマーストレンド分析サービス</title>
+        <meta name="description" content="EcomTrendAIは、AIを活用してAmazon等のEコマースのトレンドを特定・分析。売れ筋商品や市場動向をリアルタイムで可視化し、ビジネスチャンスを逃しません。" />
+        <meta name="keywords" content="Eコマース,トレンド分析,Amazon,売れ筋,ランキング,AI,マーケットリサーチ" />
+        <meta name="author" content="EcomTrendAI" />
+        <meta name="robots" content="index, follow" />
+
+        {/* Open Graph */}
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="EcomTrendAI" />
+        <meta property="og:title" content="EcomTrendAI - AIによるEコマーストレンド分析" />
+        <meta property="og:description" content="AIを活用してEコマースのトレンドを分析。売れ筋商品や市場動向をリアルタイムで可視化。" />
+        <meta property="og:url" content={siteUrl} />
+        <meta property="og:image" content={`${siteUrl}/og-image.png`} />
+        <meta property="og:locale" content="ja_JP" />
+
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="EcomTrendAI - AIによるEコマーストレンド分析" />
+        <meta name="twitter:description" content="AIを活用してEコマースのトレンドを分析。売れ筋商品や市場動向をリアルタイムで可視化。" />
+        <meta name="twitter:image" content={`${siteUrl}/og-image.png`} />
+
+        {/* Favicon */}
         <link rel="icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+        <link rel="manifest" href="/site.webmanifest" />
+
+        {/* 構造化データ (JSON-LD) */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebApplication",
+              "name": "EcomTrendAI",
+              "description": "AIを活用したEコマーストレンド分析サービス",
+              "url": siteUrl,
+              "applicationCategory": "BusinessApplication",
+              "operatingSystem": "Web",
+              "offers": {
+                "@type": "AggregateOffer",
+                "priceCurrency": "JPY",
+                "lowPrice": "0",
+                "highPrice": "4980",
+                "offerCount": "3"
+              },
+              "provider": {
+                "@type": "Organization",
+                "name": "EcomTrendAI",
+                "url": siteUrl
+              }
+            })
+          }}
+        />
       </Head>
       <Component {...pageProps} />
     </>
