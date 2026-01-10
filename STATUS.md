@@ -1,30 +1,33 @@
-﻿﻿# EcomTrendAI - ステータス
+# EcomTrendAI - ステータス
 
-最終更新: 2026-01-09
+最終更新: 2026-01-10
 
 ## 現在の状態
-- 状態: Phase 3.5 完了（本番デプロイ準備完了）
-- 進捗: 認証・課金・API実装済み、デプロイドキュメント完備、テスト76件全合格
+- 状態: Phase 4 完了（Webダッシュボード実装）
+- 進捗: バックエンドAPI + フロントエンドUI両方完成、デプロイ準備完了
 
 ## 次のアクション
-1. **Stripeアカウント本番設定**: `docs/STRIPE_SETUP.md` に従い設定
-2. **サーバーデプロイ**: `docs/DEPLOYMENT_GUIDE.md` に従いVPS/クラウドへデプロイ
-3. **Phase 4開始**: Webダッシュボード構築（Next.js）
-4. **ランディングページ作成**: サービス紹介・登録導線
+1. **npm install実行**: `cd dashboard && npm install`
+2. **開発サーバー起動**: `npm run dev`（APIサーバー起動後）
+3. **Stripeアカウント本番設定**: `docs/STRIPE_SETUP.md` に従い設定
+4. **サーバーデプロイ**: バックエンド + フロントエンド両方デプロイ
+5. **ドメイン設定**: api.ecomtrend.ai + ecomtrend.ai
 
 ## 最近の変更
+- 2026-01-10: Phase 4 Webダッシュボード実装
+  - dashboard/: Next.js + TypeScript + Tailwind CSS
+  - ランディングページ（トップ、機能説明、CTA）
+  - ユーザー登録・ログインUI
+  - ダッシュボード（トレンド表示テーブル）
+  - 料金プランページ（FAQ付き）
+  - APIドキュメントページ
 - 2026-01-09: 本番デプロイ準備
-  - docs/DEPLOYMENT_GUIDE.md: 本番デプロイ手順
-  - docs/STRIPE_SETUP.md: Stripe本番設定ガイド
-  - scripts/deploy.py: デプロイ管理スクリプト
 - 2026-01-09: Phase 3 認証・課金システム実装
-- 2026-01-09: Phase 2 レポート配信機能実装
 - 2026-01-08: 日次自動実行基盤構築
 
 ## テスト状況
-- 合計: 76件
-- 合格: 76件
-- 失敗: 0件
+- バックエンド: 76件合格
+- フロントエンド: 手動確認（npm run dev後）
 
 ## 課金プラン
 | プラン | 月額 | 機能 |
@@ -33,46 +36,58 @@
 | Pro | ¥980 | 日次100件、全カテゴリ、リアルタイムアラート、CSV/JSON出力 |
 | Enterprise | ¥4,980 | 無制限、カスタムダッシュボード、専用サポート |
 
-## API使用方法
+## フロントエンド構成
+```
+dashboard/
+├── src/
+│   ├── pages/
+│   │   ├── index.tsx       # ランディングページ
+│   │   ├── register.tsx    # ユーザー登録
+│   │   ├── login.tsx       # ログイン
+│   │   ├── dashboard.tsx   # ダッシュボード
+│   │   ├── pricing.tsx     # 料金プラン
+│   │   └── docs.tsx        # APIドキュメント
+│   ├── components/
+│   │   ├── Header.tsx      # ヘッダー
+│   │   ├── Footer.tsx      # フッター
+│   │   └── PricingCard.tsx # 料金カード
+│   ├── lib/
+│   │   └── api.ts          # API通信
+│   └── styles/
+│       └── globals.css     # Tailwind CSS
+├── package.json
+├── tsconfig.json
+├── tailwind.config.js
+└── next.config.js
+```
+
+## 起動方法
 ```bash
-# サーバー起動（開発）
+# バックエンドAPI起動
 python src/api.py --host 0.0.0.0 --port 8000
 
-# サーバー起動（本番）
-python scripts/deploy.py prod --workers 4
-
-# ユーザー登録
-curl -X POST http://localhost:8000/users/register \
-  -H "Content-Type: application/json" \
-  -d '{"email": "user@example.com"}'
-
-# トレンド取得
-curl http://localhost:8000/trends \
-  -H "X-API-Key: ect_your_api_key"
+# フロントエンド起動（別ターミナル）
+cd dashboard
+npm install  # 初回のみ
+npm run dev
 ```
 
 ## デプロイチェックリスト
-- [ ] Stripeアカウント本番有効化
-- [ ] 商品・価格ID設定（Pro: ¥980, Enterprise: ¥4,980）
-- [ ] Webhook設定（URL + 署名シークレット）
-- [ ] VPS/クラウドサーバー準備
-- [ ] ドメイン設定
-- [ ] SSL証明書取得
-- [ ] Nginx/リバースプロキシ設定
-- [ ] systemdサービス登録
-
-## 環境設定（.env）
-```bash
-# Stripe設定（必須：課金機能使用時）
-STRIPE_SECRET_KEY=sk_live_xxxxx  # 本番キー
-STRIPE_WEBHOOK_SECRET=whsec_xxxxx
-STRIPE_PRICE_PRO=price_xxxxx_pro
-STRIPE_PRICE_ENTERPRISE=price_xxxxx_enterprise
-```
+- [ ] バックエンド
+  - [ ] Stripeアカウント本番有効化
+  - [ ] VPS/クラウドサーバー準備
+  - [ ] systemdサービス登録
+  - [ ] Nginx設定
+- [ ] フロントエンド
+  - [ ] npm run build
+  - [ ] Vercel/Netlifyへデプロイ または 静的ファイルホスティング
+  - [ ] 環境変数設定（NEXT_PUBLIC_API_URL）
+- [ ] 共通
+  - [ ] ドメイン取得・設定
+  - [ ] SSL証明書
 
 ## 技術メモ
-- 認証: APIキーベース（Bearer/X-API-Key）
+- バックエンド: Python FastAPI + Stripe
+- フロントエンド: Next.js 14 + TypeScript + Tailwind CSS
+- 認証: APIキーベース（X-API-Key / Bearer）
 - 決済: Stripe Checkout Session
-- プラン制限: リクエストごとにチェック
-- データ永続化: JSONファイル（将来DB移行予定）
-- デプロイ: uvicorn + Gunicorn + Nginx
