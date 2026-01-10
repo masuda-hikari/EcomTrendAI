@@ -3,17 +3,21 @@
 最終更新: 2026-01-10
 
 ## 現在の状態
-- 状態: Phase 4 完了（Webダッシュボード実装）
-- 進捗: バックエンドAPI + フロントエンドUI両方完成、デプロイ準備完了
+- 状態: Phase 5 デプロイ準備完了
+- 進捗: npm install完了、ビルド成功、テスト全76件パス
 
 ## 次のアクション
-1. **npm install実行**: `cd dashboard && npm install`
-2. **開発サーバー起動**: `npm run dev`（APIサーバー起動後）
-3. **Stripeアカウント本番設定**: `docs/STRIPE_SETUP.md` に従い設定
-4. **サーバーデプロイ**: バックエンド + フロントエンド両方デプロイ
-5. **ドメイン設定**: api.ecomtrend.ai + ecomtrend.ai
+1. **Stripeアカウント本番設定**: `docs/STRIPE_SETUP.md` に従い設定
+2. **バックエンドデプロイ**: VPS/クラウドサーバーにAPI配置
+3. **フロントエンドデプロイ**: Vercel/Netlifyへデプロイ
+4. **ドメイン設定**: api.ecomtrend.ai + ecomtrend.ai
+5. **SSL証明書設定**: Let's Encrypt等
 
 ## 最近の変更
+- 2026-01-10: Phase 5 デプロイ準備
+  - npm install完了（143パッケージ）
+  - npm run build成功（全8ページ生成）
+  - pytest 76件全パス
 - 2026-01-10: Phase 4 Webダッシュボード実装
   - dashboard/: Next.js + TypeScript + Tailwind CSS
   - ランディングページ（トップ、機能説明、CTA）
