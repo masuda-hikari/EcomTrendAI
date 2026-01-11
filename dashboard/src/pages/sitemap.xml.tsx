@@ -5,6 +5,7 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://ecomtrend.ai';
 // 静的ページ一覧
 const staticPages = [
   { path: '/', priority: 1.0, changefreq: 'daily' },
+  { path: '/demo', priority: 0.95, changefreq: 'daily' },
   { path: '/sample-report', priority: 0.9, changefreq: 'daily' },
   { path: '/pricing', priority: 0.8, changefreq: 'weekly' },
   { path: '/docs', priority: 0.7, changefreq: 'weekly' },

@@ -79,6 +79,10 @@ export default function Header() {
             <Link href="/#features" className="text-gray-600 hover:text-gray-900 transition-colors">
               機能
             </Link>
+            <Link href="/demo" className="text-gray-600 hover:text-gray-900 transition-colors flex items-center gap-1">
+              <span>デモ</span>
+              <span className="bg-green-100 text-green-700 text-xs font-medium px-1.5 py-0.5 rounded">無料</span>
+            </Link>
             <Link href="/sample-report" className="text-gray-600 hover:text-gray-900 transition-colors">
               サンプルレポート
             </Link>
@@ -152,6 +156,14 @@ export default function Header() {
                 onClick={closeMobileMenu}
               >
                 機能
+              </Link>
+              <Link
+                href="/demo"
+                className="text-gray-600 hover:text-gray-900 py-2 transition-colors flex items-center gap-2"
+                onClick={closeMobileMenu}
+              >
+                <span>デモ</span>
+                <span className="bg-green-100 text-green-700 text-xs font-medium px-1.5 py-0.5 rounded">無料</span>
               </Link>
               <Link
                 href="/sample-report"
