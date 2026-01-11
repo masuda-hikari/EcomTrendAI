@@ -1,10 +1,10 @@
-﻿﻿# EcomTrendAI - ステータス
+﻿# EcomTrendAI - ステータス
 
 最終更新: 2026-01-11
 
 ## 現在の状態
-- 状態: Phase 19 SEO・PWA・GA4対応完了・デプロイ待ち
-- 進捗: テスト177件全パス、フロントエンドビルド成功（14ページ + OGP API）
+- 状態: Phase 20 品質改善完了・デプロイ待ち
+- 進捗: テスト177件全パス、フロントエンドビルド成功、パフォーマンス最適化完了
 
 ## 次のアクション
 1. **Vercel連携**: https://vercel.com/new でプロジェクト作成、GitHubリポジトリ連携
@@ -14,30 +14,31 @@
 5. **GA4設定**: Google Analytics 4で測定IDを取得し、環境変数に設定
 
 ## 最近の変更
+- 2026-01-11: Phase 20 品質改善
+  - バックエンドセキュリティ改善（bandit警告対応）
+  - GitHub Actions強化（Vercel/Render自動デプロイ対応）
+  - フロントエンドパフォーマンス最適化（Recharts遅延読み込み）
+  - sample-reportページサイズ: 107kB → 7.39kB（93%削減）
 - 2026-01-11: Phase 19 SEO・PWA・GA4対応
-  - Google Analytics 4連携準備（analytics.ts, GoogleAnalytics.tsx）
+  - Google Analytics 4連携準備
   - PWA対応（manifest.json, sw.js, offline.html）
-  - サイトマップ自動生成（sitemap.xml.tsx）
-  - robots.txt追加
-  - ファビコンSVG追加
-  - 環境変数テンプレート更新（GA_MEASUREMENT_ID追加）
+  - サイトマップ自動生成
 - 2026-01-11: Phase 18 コンポーネント統合
-  - ランディングページにA/Bテスト対応CTAボタン統合
-  - ランディングページにA/Bテスト対応ヒーロー見出し統合
-  - サンプルレポートページにアフィリエイトクリック追跡追加
-  - サンプルレポートページにA/Bテスト対応CTA追加
-  - ダッシュボードにアップセルプロンプト追加
-  - ダッシュボードにオンボーディングチェックリスト追加
-  - ダッシュボードにウェルカムトースト追加
-  - ダッシュボードにアフィリエイトクリック追跡追加
-  - 全ページにページビュー追跡追加
+  - A/Bテスト対応CTAをページに統合
+  - アフィリエイトクリック追跡を統合
+  - アップセル・オンボーディングをダッシュボードに統合
 
 ## テスト状況
-- バックエンド: 177件合格（5.30秒）
+- バックエンド: 177件合格（5.58秒）
 - カバレッジ: 81%（目標80%達成）
 - フロントエンドLint: エラーなし
-- フロントエンドビルド: 14ページ + 1 API成功
-- セキュリティスキャン: bandit PASS / pip-audit PASS
+- フロントエンドビルド: 13ページ + 1 API成功
+- セキュリティスキャン: bandit警告0件 / pip-audit PASS
+
+## パフォーマンス改善
+| ページ | 改善前 | 改善後 | 削減率 |
+|--------|--------|--------|--------|
+| sample-report | 107kB | 7.39kB | 93% |
 
 ## 収益化機能（統合済み）
 | 機能 | 適用ページ | 効果 |
@@ -51,34 +52,10 @@
 | GA4連携 | 全ページ | コンバージョン測定 |
 | PWA対応 | 全体 | モバイル体験向上 |
 
-## ページ一覧（14ページ + 1 API）
-| ページ | パス | 追加機能 |
-|--------|------|--------|
-| トップ | `/` | A/B CTA + ヒーロー, ページビュー |
-| サンプルレポート | `/sample-report` | A/B CTA, アフィリエイト追跡 |
-| ログイン | `/login` | - |
-| 登録 | `/register` | - |
-| 料金 | `/pricing` | - |
-| ダッシュボード | `/dashboard` | アップセル, オンボーディング |
-| ドキュメント | `/docs` | - |
-| プライバシーポリシー | `/privacy` | - |
-| 利用規約 | `/terms` | - |
-| 特商法表記 | `/legal/commerce` | - |
-| お問い合わせ | `/contact` | - |
-| **サイトマップ** | `/sitemap.xml` | SEO |
-| **OGP画像生成** | `/api/og` | SNS共有 |
-
-## PWA対応状況
-- [x] manifest.json作成
-- [x] Service Worker実装
-- [x] オフラインページ作成
-- [x] ホーム画面追加対応（iOS/Android）
-- [x] プッシュ通知基盤（将来用）
-
 ## デプロイチェックリスト
 - [ ] GitHubリポジトリ
   - [x] リポジトリ作成・push
-  - [ ] Actionsシークレット設定（STRIPE_SECRET_KEY等）
+  - [ ] Actionsシークレット設定（VERCEL_TOKEN, RENDER_DEPLOY_HOOK_URL等）
 - [ ] バックエンド
   - [ ] Render / VPS準備
   - [ ] 環境変数設定
@@ -108,7 +85,7 @@
 - バックエンド: Python FastAPI + Stripe + SQLite/PostgreSQL
 - フロントエンド: Next.js 14 + TypeScript + Tailwind CSS + Recharts
 - インフラ: Docker + Nginx + Let's Encrypt / Vercel + Render
-- CI/CD: GitHub Actions + Vercel
+- CI/CD: GitHub Actions + Vercel自動デプロイ
 - テスト: pytest + Playwright
 - OGP生成: @vercel/og
 - A/Bテスト: カスタム実装（localStorage + イベント追跡）

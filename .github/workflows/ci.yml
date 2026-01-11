@@ -135,20 +135,30 @@ jobs:
           echo "  - DEPLOY_USER: SSHユーザー"
           echo "  - DEPLOY_KEY: SSH秘密鍵"
 
-      # SSH デプロイ（シークレット設定時に有効化）
-      # - name: SSHデプロイ
-      #   if: ${{ secrets.DEPLOY_HOST != '' }}
-      #   uses: appleboy/ssh-action@v1.0.3
-      #   with:
-      #     host: ${{ secrets.DEPLOY_HOST }}
-      #     username: ${{ secrets.DEPLOY_USER }}
-      #     key: ${{ secrets.DEPLOY_KEY }}
-      #     script: |
-      #       cd /var/www/ecomtrend-api
-      #       git pull origin main
-      #       source venv/bin/activate
-      #       pip install -r requirements.txt
-      #       sudo systemctl restart ecomtrend-api
+      - name: Renderデプロイ（シークレット設定時に実行）
+        if: ${{ env.RENDER_DEPLOY_HOOK_URL != '' }}
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          curl -X POST "$RENDER_DEPLOY_HOOK_URL"
+          echo "Renderデプロイをトリガーしました"
+
+      # SSH デプロイ（カスタムVPS用、シークレット設定時に有効化）
+      - name: SSHデプロイ
+        if: ${{ env.DEPLOY_HOST != '' }}
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_KEY }}
+          script: |
+            cd /var/www/ecomtrend-api
+            git pull origin main
+            source venv/bin/activate
+            pip install -r requirements.txt
+            sudo systemctl restart ecomtrend-api
 
   # フロントエンドデプロイ（Vercel）
   deploy-frontend:
@@ -167,11 +177,28 @@ jobs:
           name: frontend-build
           path: dashboard/out
 
-      - name: デプロイ通知
+      - name: Vercelデプロイ（シークレット設定時に実行）
+        if: ${{ env.VERCEL_TOKEN != '' }}
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          npm install -g vercel@latest
+          cd dashboard
+          vercel --prod --yes --token=$VERCEL_TOKEN
+
+      - name: デプロイ通知（シークレット未設定時）
+        if: ${{ env.VERCEL_TOKEN == '' }}
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
           echo "フロントエンドビルド完了"
-          echo "Vercel連携を設定してください:"
+          echo "自動デプロイを有効化するには以下のシークレットを設定:"
+          echo "  - VERCEL_TOKEN: Vercel API Token"
+          echo "  - VERCEL_ORG_ID: Vercel Organization ID"
+          echo "  - VERCEL_PROJECT_ID: Vercel Project ID"
+          echo "手動設定:"
           echo "  1. https://vercel.com/new でプロジェクト作成"
-          echo "  2. GitHubリポジトリを連携"
-          echo "  3. Root Directory: dashboard"
-          echo "  4. 環境変数: NEXT_PUBLIC_API_URL"
+          echo "  2. Root Directory: dashboard"
+          echo "  3. 環境変数: NEXT_PUBLIC_API_URL"

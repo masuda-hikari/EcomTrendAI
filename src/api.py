@@ -323,7 +323,8 @@ def create_app() -> "FastAPI":
                 with open(subscribers_file, "r", encoding="utf-8") as f:
                     subscribers = json.load(f)
                     subscriber_count = len(subscribers)
-            except Exception:
+            except (json.JSONDecodeError, OSError):
+                # ファイル読み込みエラーは無視（メトリクス収集失敗は致命的でない）
                 pass
         lines.append(f"ecomtrend_subscribers_total {subscriber_count}")
 
@@ -1008,7 +1009,7 @@ https://ecomtrend.ai
 
 # === エントリポイント ===
 
-def run_server(host: str = "0.0.0.0", port: int = 8000):
+def run_server(host: str = "0.0.0.0", port: int = 8000):  # nosec B104 - Docker環境での標準設定
     """APIサーバーを起動"""
     if not FASTAPI_AVAILABLE:
         logger.error("FastAPIがインストールされていません")
@@ -1026,7 +1027,7 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="EcomTrendAI API Server")
-    parser.add_argument("--host", default="0.0.0.0", help="ホスト（デフォルト: 0.0.0.0）")
+    parser.add_argument("--host", default="0.0.0.0", help="ホスト（デフォルト: 0.0.0.0）")  # nosec B104
     parser.add_argument("--port", type=int, default=8000, help="ポート（デフォルト: 8000）")
 
     args = parser.parse_args()

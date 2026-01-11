@@ -1,13 +1,14 @@
 import Head from 'next/head';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import SocialShare from '@/components/SocialShare';
 import EmailCapture from '@/components/EmailCapture';
 import ABTestCTA from '@/components/ABTestCTA';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { useEffect } from 'react';
 import { trackPageView, trackAffiliateClick } from '@/lib/tracking';
+
 
 // サンプルトレンドデータ
 const sampleTrends = [
@@ -23,25 +24,15 @@ const sampleTrends = [
   { rank: 10, name: 'モバイルバッテリー 大容量', category: '家電', rankChange: '+267', score: 76, price: '¥4,280' },
 ];
 
-// 7日間の推移データ
-const weeklyData = [
-  { date: '1/5', rank: 892 },
-  { date: '1/6', rank: 654 },
-  { date: '1/7', rank: 423 },
-  { date: '1/8', rank: 287 },
-  { date: '1/9', rank: 156 },
-  { date: '1/10', rank: 78 },
-  { date: '1/11', rank: 45 },
-];
-
-// カテゴリ別データ
-const categoryData = [
-  { category: '家電', count: 156, growth: '+23%' },
-  { category: 'PC周辺機器', count: 89, growth: '+18%' },
-  { category: '生活用品', count: 67, growth: '+15%' },
-  { category: 'ウェアラブル', count: 45, growth: '+31%' },
-  { category: '食品', count: 34, growth: '+12%' },
-];
+// チャートコンポーネントを動的インポート（バンドルサイズ削減）
+const RankChart = dynamic(() => import('@/components/SampleCharts').then(mod => mod.RankChart), {
+  ssr: false,
+  loading: () => <div className="bg-white rounded-xl shadow-sm p-6"><div className="h-48 bg-gray-100 animate-pulse rounded-lg" /></div>,
+});
+const CategoryChart = dynamic(() => import('@/components/SampleCharts').then(mod => mod.CategoryChart), {
+  ssr: false,
+  loading: () => <div className="bg-white rounded-xl shadow-sm p-6"><div className="h-48 bg-gray-100 animate-pulse rounded-lg" /></div>,
+});
 
 export default function SampleReport() {
   const today = new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -266,60 +257,11 @@ export default function SampleReport() {
 
             {/* サイドバー */}
             <div className="space-y-6">
-              {/* ランク推移グラフ */}
-              <div className="bg-white rounded-xl shadow-sm p-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-4">1位商品のランク推移（7日間）</h3>
-                <div className="h-48">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={weeklyData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                      <XAxis dataKey="date" tick={{ fontSize: 12 }} stroke="#6b7280" />
-                      <YAxis reversed tick={{ fontSize: 12 }} stroke="#6b7280" />
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: '#fff',
-                          border: '1px solid #e5e7eb',
-                          borderRadius: '8px'
-                        }}
-                        formatter={(value: number) => [`${value}位`, 'ランク']}
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="rank"
-                        stroke="#7c3aed"
-                        strokeWidth={3}
-                        dot={{ fill: '#7c3aed', strokeWidth: 2 }}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-                <p className="text-sm text-gray-500 mt-2 text-center">
-                  7日間で847位→45位に急上昇
-                </p>
-              </div>
+              {/* ランク推移グラフ（動的読み込み） */}
+              <RankChart />
 
-              {/* カテゴリ別 */}
-              <div className="bg-white rounded-xl shadow-sm p-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-4">カテゴリ別検出数</h3>
-                <div className="h-48">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={categoryData} layout="vertical">
-                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                      <XAxis type="number" tick={{ fontSize: 12 }} stroke="#6b7280" />
-                      <YAxis dataKey="category" type="category" tick={{ fontSize: 11 }} stroke="#6b7280" width={80} />
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: '#fff',
-                          border: '1px solid #e5e7eb',
-                          borderRadius: '8px'
-                        }}
-                        formatter={(value: number) => [`${value}件`, '検出数']}
-                      />
-                      <Bar dataKey="count" fill="#7c3aed" radius={[0, 4, 4, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
+              {/* カテゴリ別（動的読み込み） */}
+              <CategoryChart />
 
               {/* CTA */}
               <div className="bg-gradient-to-br from-primary-600 to-primary-800 rounded-xl shadow-sm p-6 text-white">
