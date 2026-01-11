@@ -88,7 +88,29 @@ export default function Register() {
                 </button>
               </form>
 
-              <div className="mt-6 text-center text-sm text-gray-600">
+              {/* セキュリティ保証 */}
+              <div className="mt-6 flex items-center justify-center gap-6 py-4 border-t border-gray-100">
+                <div className="flex items-center gap-1 text-xs text-gray-500">
+                  <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                  </svg>
+                  SSL暗号化
+                </div>
+                <div className="flex items-center gap-1 text-xs text-gray-500">
+                  <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  クレカ不要
+                </div>
+                <div className="flex items-center gap-1 text-xs text-gray-500">
+                  <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                  </svg>
+                  30秒で完了
+                </div>
+              </div>
+
+              <div className="mt-4 text-center text-sm text-gray-600">
                 <p>
                   登録することで、
                   <Link href="/terms" className="text-primary-600 hover:underline">
