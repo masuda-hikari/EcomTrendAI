@@ -2,13 +2,13 @@ import Link from 'next/link';
 
 export default function Footer() {
   return (
-    <footer className="bg-gray-900 text-gray-400">
+    <footer className="bg-gray-900 text-gray-400" role="contentinfo">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* ロゴ・説明 */}
           <div className="col-span-1">
             <div className="flex items-center space-x-2 mb-4">
-              <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center" aria-hidden="true">
                 <span className="text-white font-bold text-sm">ET</span>
               </div>
               <span className="font-bold text-xl text-white">EcomTrendAI</span>
@@ -20,9 +20,9 @@ export default function Footer() {
           </div>
 
           {/* 製品 */}
-          <div>
+          <nav aria-label="製品">
             <h3 className="text-white font-semibold mb-4">製品</h3>
-            <ul className="space-y-2 text-sm">
+            <ul className="space-y-2 text-sm" role="list">
               <li>
                 <Link href="/#features" className="hover:text-white transition-colors">
                   機能
@@ -39,12 +39,12 @@ export default function Footer() {
                 </Link>
               </li>
             </ul>
-          </div>
+          </nav>
 
           {/* サポート */}
-          <div>
+          <nav aria-label="サポート">
             <h3 className="text-white font-semibold mb-4">サポート</h3>
-            <ul className="space-y-2 text-sm">
+            <ul className="space-y-2 text-sm" role="list">
               <li>
                 <Link href="/docs/getting-started" className="hover:text-white transition-colors">
                   はじめに
@@ -61,12 +61,12 @@ export default function Footer() {
                 </Link>
               </li>
             </ul>
-          </div>
+          </nav>
 
           {/* 法的情報 */}
-          <div>
+          <nav aria-label="法的情報">
             <h3 className="text-white font-semibold mb-4">法的情報</h3>
-            <ul className="space-y-2 text-sm">
+            <ul className="space-y-2 text-sm" role="list">
               <li>
                 <Link href="/privacy" className="hover:text-white transition-colors">
                   プライバシーポリシー
@@ -83,7 +83,7 @@ export default function Footer() {
                 </Link>
               </li>
             </ul>
-          </div>
+          </nav>
         </div>
 
         <div className="border-t border-gray-800 mt-8 pt-8 text-sm text-center">

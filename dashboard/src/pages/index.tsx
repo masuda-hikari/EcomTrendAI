@@ -54,9 +54,9 @@ export default function Home() {
 
       <Header />
 
-      <main>
+      <main role="main" id="main-content">
         {/* ヒーローセクション */}
-        <section className="bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900 text-white relative overflow-hidden">
+        <section className="bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900 text-white relative overflow-hidden" aria-labelledby="hero-heading">
           {/* 背景装飾 */}
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute -top-1/2 -right-1/4 w-96 h-96 bg-primary-500/30 rounded-full blur-3xl"></div>
@@ -132,10 +132,10 @@ export default function Home() {
         </section>
 
         {/* 特徴セクション */}
-        <section id="features" className="py-24 bg-gray-50">
+        <section id="features" className="py-24 bg-gray-50" aria-labelledby="features-heading">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              <h2 id="features-heading" className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
                 EcomTrendAIの特徴
               </h2>
               <p className="text-xl text-gray-600 max-w-2xl mx-auto">
@@ -336,10 +336,10 @@ export default function Home() {
         />
 
         {/* FAQセクション */}
-        <section className="py-24 bg-white">
+        <section className="py-24 bg-white" aria-labelledby="faq-heading">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              <h2 id="faq-heading" className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
                 よくある質問
               </h2>
               <p className="text-xl text-gray-600">
@@ -347,25 +347,36 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-4" role="region" aria-label="よくある質問一覧">
               {faqs.map((faq, index) => (
                 <div key={index} className="border border-gray-200 rounded-lg overflow-hidden">
-                  <button
-                    onClick={() => setOpenFaq(openFaq === index ? null : index)}
-                    className="w-full px-6 py-4 text-left flex items-center justify-between bg-white hover:bg-gray-50 transition-colors"
-                  >
-                    <span className="font-medium text-gray-900">{faq.question}</span>
-                    <svg
-                      className={`w-5 h-5 text-gray-500 transition-transform ${openFaq === index ? 'rotate-180' : ''}`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
+                  <h3>
+                    <button
+                      onClick={() => setOpenFaq(openFaq === index ? null : index)}
+                      className="w-full px-6 py-4 text-left flex items-center justify-between bg-white hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-inset"
+                      aria-expanded={openFaq === index}
+                      aria-controls={`faq-answer-${index}`}
+                      id={`faq-question-${index}`}
                     >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
+                      <span className="font-medium text-gray-900">{faq.question}</span>
+                      <svg
+                        className={`w-5 h-5 text-gray-500 transition-transform ${openFaq === index ? 'rotate-180' : ''}`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                  </h3>
                   {openFaq === index && (
-                    <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                    <div
+                      id={`faq-answer-${index}`}
+                      className="px-6 py-4 bg-gray-50 border-t border-gray-200"
+                      role="region"
+                      aria-labelledby={`faq-question-${index}`}
+                    >
                       <p className="text-gray-600">{faq.answer}</p>
                     </div>
                   )}
