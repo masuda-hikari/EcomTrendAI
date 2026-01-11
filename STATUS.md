@@ -1,10 +1,10 @@
-﻿﻿﻿# EcomTrendAI - ステータス
+# EcomTrendAI - ステータス
 
 最終更新: 2026-01-11
 
 ## 現在の状態
-- 状態: Phase 27 E2Eテスト強化完了・デプロイ待ち
-- 進捗: テスト191件全パス、フロントエンドビルド成功（15ページ）、E2Eテスト追加
+- 状態: Phase 28 ドキュメント・商用化準備完了・デプロイ待ち
+- 進捗: テスト191件全パス、フロントエンドビルド成功（13ページ）、商用品質ドキュメント完備
 
 ## 次のアクション
 1. **Vercel連携**: https://vercel.com/new でプロジェクト作成、GitHubリポジトリ連携
@@ -14,6 +14,11 @@
 5. **GA4設定**: Google Analytics 4で測定IDを取得し、環境変数に設定
 
 ## 最近の変更
+- 2026-01-11: Phase 28 ドキュメント・商用化準備強化
+  - README.md: 商用品質に全面改善（マーケティング訴求・API概要・料金表）
+  - docs/API_REFERENCE.md: 詳細API仕様書追加（全エンドポイント・SDKサンプル）
+  - docs/MONITORING.md: 監視ガイド追加（Prometheus/Grafana/UptimeRobot設定）
+  - .env.example: PostgreSQL設定・GA4・フロントエンド設定追加
 - 2026-01-11: Phase 27 E2Eテスト強化
   - モバイル専用E2Eテスト追加（iPhone 12, Pixel 5, iPad）
   - アクセシビリティE2Eテスト追加（WCAG準拠確認）
@@ -32,26 +37,23 @@
   - DDoS対策（ブルートフォース防止・自動ブロック）
   - リクエストログミドルウェア追加（監査対応）
   - テスト14件追加（191件合計）
-- 2026-01-11: Phase 22 UX改善
-  - カスタム404ページ追加（ユーザー誘導リンク付き）
-  - カスタム500ページ追加（エラーリカバリー案内）
-  - .gitignore更新（ユーザーデータ保護）
-- 2026-01-11: Phase 21 コンバージョン最適化
-  - PricingCard: 返金保証バッジ追加、CTAボタン改善、社会的証明追加
-  - 登録ページ: セキュリティ保証バッジ追加（SSL/クレカ不要/30秒完了）
-- 2026-01-11: Phase 20 品質改善
-  - バックエンドセキュリティ改善（bandit警告対応）
-  - GitHub Actions強化（Vercel/Render自動デプロイ対応）
-  - フロントエンドパフォーマンス最適化（Recharts遅延読み込み）
-  - sample-reportページサイズ: 107kB → 7.39kB（93%削減）
 
 ## テスト状況
-- バックエンド: 191件合格（5.92秒）
+- バックエンド: 191件合格（5.61秒）
 - カバレッジ: 81%（目標80%達成）
 - フロントエンドLint: エラーなし
-- フロントエンドビルド: 15ページ成功
+- フロントエンドビルド: 13ページ + 1 API成功
 - セキュリティスキャン: bandit警告0件
 - E2Eテスト: 7ファイル（mobile.spec.ts, accessibility.spec.ts追加）
+
+## ドキュメント（Phase 28追加）
+| ドキュメント | パス | 内容 |
+|-------------|------|------|
+| README | README.md | 商用品質の製品紹介・クイックスタート |
+| API仕様書 | docs/API_REFERENCE.md | 全エンドポイント詳細・SDKサンプル |
+| 監視ガイド | docs/MONITORING.md | Prometheus/Grafana/UptimeRobot設定 |
+| デプロイガイド | docs/DEPLOY_GUIDE.md | Vercel/Render/Docker設定手順 |
+| Stripe設定 | docs/STRIPE_SETUP.md | 決済システム設定手順 |
 
 ## セキュリティ機能（Phase 25）
 | 機能 | 説明 | 設定 |
