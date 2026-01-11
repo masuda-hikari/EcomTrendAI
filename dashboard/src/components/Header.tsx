@@ -92,6 +92,9 @@ export default function Header() {
             <Link href="/docs" className="text-gray-600 hover:text-gray-900 transition-colors">
               ドキュメント
             </Link>
+            <Link href="/faq" className="text-gray-600 hover:text-gray-900 transition-colors">
+              FAQ
+            </Link>
           </div>
 
           {/* デスクトップ認証ボタン */}
@@ -189,6 +192,13 @@ export default function Header() {
                 onClick={closeMobileMenu}
               >
                 ドキュメント
+              </Link>
+              <Link
+                href="/faq"
+                className="text-gray-600 hover:text-gray-900 py-2 transition-colors"
+                onClick={closeMobileMenu}
+              >
+                FAQ
               </Link>
 
               {/* 区切り線 */}

@@ -9,6 +9,7 @@ const staticPages = [
   { path: '/sample-report', priority: 0.9, changefreq: 'daily' },
   { path: '/pricing', priority: 0.8, changefreq: 'weekly' },
   { path: '/docs', priority: 0.7, changefreq: 'weekly' },
+  { path: '/faq', priority: 0.7, changefreq: 'weekly' },
   { path: '/login', priority: 0.5, changefreq: 'monthly' },
   { path: '/register', priority: 0.6, changefreq: 'monthly' },
   { path: '/contact', priority: 0.5, changefreq: 'monthly' },
