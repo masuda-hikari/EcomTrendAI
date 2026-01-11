@@ -249,7 +249,7 @@ def error_handler(
                 if context_func:
                     try:
                         context = context_func(*args, **kwargs)
-                    except Exception:
+                    except Exception:  # nosec B110 - コンテキスト取得失敗は無視して本体のエラー処理を優先
                         pass
 
                 context["function"] = func.__name__
