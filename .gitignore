@@ -7,6 +7,12 @@
 credentials/
 secrets/
 
+# ユーザーデータ（本番ではDBを使用）
+data/users.json
+data/api_keys.json
+data/newsletter_subscribers.json
+data/click_logs.json
+
 # 言語別ビルド成果物
 # Node.js
 node_modules/
