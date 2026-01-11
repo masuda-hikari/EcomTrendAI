@@ -3,9 +3,16 @@ import type { AppProps } from 'next/app';
 import Head from 'next/head';
 import { useEffect } from 'react';
 import GoogleAnalytics from '@/components/GoogleAnalytics';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { initSentry } from '@/lib/sentry';
 
 export default function App({ Component, pageProps }: AppProps) {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://ecomtrend.ai';
+
+  // Sentry初期化
+  useEffect(() => {
+    initSentry();
+  }, []);
 
   // Service Worker登録（PWA対応）
   useEffect(() => {
@@ -100,7 +107,9 @@ export default function App({ Component, pageProps }: AppProps) {
         メインコンテンツへスキップ
       </a>
       <GoogleAnalytics />
-      <Component {...pageProps} />
+      <ErrorBoundary>
+        <Component {...pageProps} />
+      </ErrorBoundary>
     </>
   );
 }
