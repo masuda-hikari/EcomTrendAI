@@ -1,0 +1,12 @@
+# EcomTrendAI robots.txt
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /dashboard
+Disallow: /_next/
+
+# Sitemaps
+Sitemap: https://ecomtrend.ai/sitemap.xml
+
+# Crawl-delay (optional, for respectful crawling)
+Crawl-delay: 1

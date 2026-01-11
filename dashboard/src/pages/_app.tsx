@@ -1,9 +1,27 @@
 import '@/styles/globals.css';
 import type { AppProps } from 'next/app';
 import Head from 'next/head';
+import { useEffect } from 'react';
+import GoogleAnalytics from '@/components/GoogleAnalytics';
 
 export default function App({ Component, pageProps }: AppProps) {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://ecomtrend.ai';
+
+  // Service Worker登録（PWA対応）
+  useEffect(() => {
+    if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker
+          .register('/sw.js')
+          .then((registration) => {
+            console.log('SW registered:', registration.scope);
+          })
+          .catch((error) => {
+            console.log('SW registration failed:', error);
+          });
+      });
+    }
+  }, []);
 
   return (
     <>
@@ -35,12 +53,16 @@ export default function App({ Component, pageProps }: AppProps) {
         <meta name="twitter:description" content="AIを活用してEコマースのトレンドを分析。売れ筋商品や市場動向をリアルタイムで可視化。" />
         <meta name="twitter:image" content={`${siteUrl}/og-image.png`} />
 
-        {/* Favicon */}
+        {/* Favicon & PWA */}
         <link rel="icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-        <link rel="manifest" href="/site.webmanifest" />
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="EcomTrendAI" />
+        <meta name="mobile-web-app-capable" content="yes" />
 
         {/* 構造化データ (JSON-LD) */}
         <script
@@ -70,6 +92,7 @@ export default function App({ Component, pageProps }: AppProps) {
           }}
         />
       </Head>
+      <GoogleAnalytics />
       <Component {...pageProps} />
     </>
   );
