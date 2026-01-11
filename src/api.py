@@ -133,6 +133,19 @@ def create_app() -> "FastAPI":
         allow_headers=["*"],
     )
 
+    # セキュリティミドルウェア（レート制限・ヘッダー・ログ）
+    from middleware import add_security_middleware, RateLimitConfig, RateLimiter
+
+    # 環境変数からレート制限設定を読み込み
+    rate_config = RateLimitConfig(
+        ip_requests_per_minute=int(os.getenv("RATE_LIMIT_IP_PER_MINUTE", "100")),
+        ip_requests_per_second=int(os.getenv("RATE_LIMIT_IP_PER_SECOND", "10")),
+        auth_requests_per_minute=int(os.getenv("RATE_LIMIT_AUTH_PER_MINUTE", "300")),
+        login_attempts_per_minute=int(os.getenv("RATE_LIMIT_LOGIN_PER_MINUTE", "5")),
+        register_attempts_per_minute=int(os.getenv("RATE_LIMIT_REGISTER_PER_MINUTE", "3")),
+    )
+    add_security_middleware(app, RateLimiter(rate_config))
+
     # サービスインスタンス
     auth_service = AuthService()
     billing_manager = BillingManager(auth_service)
