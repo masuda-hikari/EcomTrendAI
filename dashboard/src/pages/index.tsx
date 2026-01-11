@@ -232,6 +232,242 @@ export default function Home() {
           </div>
         </section>
 
+        {/* テスティモニアル（お客様の声）セクション */}
+        <section className="py-24 bg-white" aria-labelledby="testimonials-heading">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <h2 id="testimonials-heading" className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                お客様の声
+              </h2>
+              <p className="text-xl text-gray-600">
+                EcomTrendAIを活用して成果を上げているお客様の声をご紹介
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-8">
+              {/* テスティモニアル1 */}
+              <div className="bg-gray-50 p-8 rounded-xl border border-gray-100 relative">
+                <div className="absolute -top-4 left-8 text-6xl text-primary-200 font-serif">&ldquo;</div>
+                <div className="relative z-10">
+                  <p className="text-gray-700 mb-6 leading-relaxed">
+                    以前は毎日2時間かけてランキングをチェックしていましたが、EcomTrendAIのおかげで<span className="font-semibold text-primary-600">作業時間が1/4</span>になりました。しかも見逃していた急上昇商品も発見できるようになり、月の利益が3割増加しました。
+                  </p>
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                      T
+                    </div>
+                    <div>
+                      <div className="font-semibold text-gray-900">T.K. 様</div>
+                      <div className="text-sm text-gray-500">せどり歴3年 / Proプラン</div>
+                    </div>
+                  </div>
+                  <div className="mt-4 flex items-center gap-1">
+                    {[...Array(5)].map((_, i) => (
+                      <svg key={i} className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* テスティモニアル2 */}
+              <div className="bg-gray-50 p-8 rounded-xl border border-gray-100 relative">
+                <div className="absolute -top-4 left-8 text-6xl text-primary-200 font-serif">&ldquo;</div>
+                <div className="relative z-10">
+                  <p className="text-gray-700 mb-6 leading-relaxed">
+                    EC事業の仕入れ担当として使っています。カテゴリ別のトレンド分析が特に便利で、<span className="font-semibold text-primary-600">競合より早く</span>売れ筋商品を仕入れられるようになりました。API連携で自社システムとの統合も簡単でした。
+                  </p>
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                      M
+                    </div>
+                    <div>
+                      <div className="font-semibold text-gray-900">M.S. 様</div>
+                      <div className="text-sm text-gray-500">EC事業 仕入れ担当 / Enterpriseプラン</div>
+                    </div>
+                  </div>
+                  <div className="mt-4 flex items-center gap-1">
+                    {[...Array(5)].map((_, i) => (
+                      <svg key={i} className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* テスティモニアル3 */}
+              <div className="bg-gray-50 p-8 rounded-xl border border-gray-100 relative">
+                <div className="absolute -top-4 left-8 text-6xl text-primary-200 font-serif">&ldquo;</div>
+                <div className="relative z-10">
+                  <p className="text-gray-700 mb-6 leading-relaxed">
+                    副業でせどりを始めたばかりの初心者ですが、何を仕入れるべきか迷わなくなりました。<span className="font-semibold text-primary-600">無料プランでも十分使える</span>のがありがたいです。今では週末だけで月5万円の副収入を得ています。
+                  </p>
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                      A
+                    </div>
+                    <div>
+                      <div className="font-semibold text-gray-900">A.Y. 様</div>
+                      <div className="text-sm text-gray-500">会社員（副業）/ Freeプラン</div>
+                    </div>
+                  </div>
+                  <div className="mt-4 flex items-center gap-1">
+                    {[...Array(5)].map((_, i) => (
+                      <svg key={i} className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 実績バッジ */}
+            <div className="mt-12 flex flex-wrap justify-center gap-6 text-center">
+              <div className="flex items-center gap-2 px-4 py-2 bg-primary-50 rounded-full">
+                <svg className="w-5 h-5 text-primary-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <span className="text-sm font-medium text-primary-700">顧客満足度 98%</span>
+              </div>
+              <div className="flex items-center gap-2 px-4 py-2 bg-primary-50 rounded-full">
+                <svg className="w-5 h-5 text-primary-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <span className="text-sm font-medium text-primary-700">平均レビュー 4.9/5.0</span>
+              </div>
+              <div className="flex items-center gap-2 px-4 py-2 bg-primary-50 rounded-full">
+                <svg className="w-5 h-5 text-primary-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <span className="text-sm font-medium text-primary-700">継続率 95%</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Before/After 比較セクション */}
+        <section className="py-24 bg-gray-50" aria-labelledby="comparison-heading">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <h2 id="comparison-heading" className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                EcomTrendAI 導入のビフォー・アフター
+              </h2>
+              <p className="text-xl text-gray-600">
+                手作業からAI活用へ。業務効率が劇的に改善
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+              {/* Before */}
+              <div className="bg-white p-8 rounded-xl border-2 border-red-200 relative">
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-red-100 text-red-700 font-semibold rounded-full text-sm">
+                  Before
+                </div>
+                <ul className="space-y-4 mt-4">
+                  <li className="flex items-start gap-3">
+                    <svg className="w-6 h-6 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    <span className="text-gray-700">毎日2時間以上のランキングチェック</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <svg className="w-6 h-6 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    <span className="text-gray-700">トレンド商品の発見が遅れがち</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <svg className="w-6 h-6 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    <span className="text-gray-700">感覚に頼った仕入れ判断</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <svg className="w-6 h-6 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    <span className="text-gray-700">カテゴリごとの分析が困難</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <svg className="w-6 h-6 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    <span className="text-gray-700">競合に先を越されることが多い</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* After */}
+              <div className="bg-white p-8 rounded-xl border-2 border-green-200 relative">
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-green-100 text-green-700 font-semibold rounded-full text-sm">
+                  After
+                </div>
+                <ul className="space-y-4 mt-4">
+                  <li className="flex items-start gap-3">
+                    <svg className="w-6 h-6 text-green-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className="text-gray-700"><strong className="text-green-600">30分</strong>で完了するリサーチ作業</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <svg className="w-6 h-6 text-green-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className="text-gray-700">急上昇商品を<strong className="text-green-600">24時間以内</strong>に検出</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <svg className="w-6 h-6 text-green-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className="text-gray-700"><strong className="text-green-600">データに基づいた</strong>仕入れ判断</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <svg className="w-6 h-6 text-green-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className="text-gray-700"><strong className="text-green-600">50+カテゴリ</strong>をワンクリックで分析</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <svg className="w-6 h-6 text-green-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className="text-gray-700">競合より<strong className="text-green-600">早く</strong>トレンドを把握</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            {/* 中央の矢印 */}
+            <div className="hidden md:flex justify-center -mt-8 mb-8">
+              <div className="w-16 h-16 bg-primary-600 rounded-full flex items-center justify-center shadow-lg">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* メディア掲載・信頼セクション */}
+        <section className="py-16 bg-white border-b" aria-labelledby="trust-heading">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <p id="trust-heading" className="text-center text-gray-500 text-sm mb-8 uppercase tracking-wider">
+              多くのプロフェッショナルに選ばれています
+            </p>
+            <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12 opacity-60">
+              {/* プレースホルダーロゴ（実際の導入企業ロゴに差し替え） */}
+              <div className="text-2xl font-bold text-gray-400">TECH MEDIA</div>
+              <div className="text-2xl font-bold text-gray-400">EC JOURNAL</div>
+              <div className="text-2xl font-bold text-gray-400">STARTUP NEWS</div>
+              <div className="text-2xl font-bold text-gray-400">BUSINESS+</div>
+              <div className="text-2xl font-bold text-gray-400">AI WEEKLY</div>
+            </div>
+          </div>
+        </section>
+
         {/* ユースケースセクション */}
         <section className="py-24 bg-gray-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
