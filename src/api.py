@@ -29,6 +29,7 @@ except ImportError:
     logger.warning("FastAPIがインストールされていません。pip install fastapi uvicorn")
 
 from auth import AuthService, BillingManager, StripeService, SubscriptionPlan, User
+from referral import ReferralService, ReferralStatus
 
 
 # === Pydanticモデル ===
@@ -57,6 +58,19 @@ if FASTAPI_AVAILABLE:
         price: Optional[float] = None
         rank: Optional[int] = None
         source: str = "website"
+
+    class ReferralCodeRequest(BaseModel):
+        """紹介コード生成リクエスト"""
+        expires_days: Optional[int] = None
+        max_uses: int = -1
+
+    class ApplyReferralRequest(BaseModel):
+        """紹介適用リクエスト"""
+        referral_code: str
+
+    class UseCreditRequest(BaseModel):
+        """クレジット使用リクエスト"""
+        amount: int
 
     class UserResponse(BaseModel):
         """ユーザーレスポンス"""
@@ -149,6 +163,7 @@ def create_app() -> "FastAPI":
     # サービスインスタンス
     auth_service = AuthService()
     billing_manager = BillingManager(auth_service)
+    referral_service = ReferralService()
 
     # === 依存関係 ===
 
@@ -655,12 +670,18 @@ https://ecomtrend.ai
 
     # === エンドポイント: ユーザー管理 ===
 
+    class UserRegisterWithReferralRequest(BaseModel):
+        """紹介コード付きユーザー登録リクエスト"""
+        email: EmailStr
+        referral_code: Optional[str] = None
+
     @app.post("/users/register", response_model=UserResponse, tags=["Users"])
-    async def register_user(request: UserRegisterRequest):
+    async def register_user(request: UserRegisterWithReferralRequest):
         """
         新規ユーザー登録
 
         FREEプランで登録され、APIキーが発行されます。
+        紹介コードがある場合は紹介特典が適用されます。
         """
         # 既存チェック
         existing = auth_service.get_user_by_email(request.email)
@@ -671,6 +692,14 @@ https://ecomtrend.ai
             )
 
         user, _ = billing_manager.register_user(request.email)
+
+        # 紹介コード適用
+        referral_bonus = 0
+        if request.referral_code:
+            referral = referral_service.apply_referral(request.referral_code, user.user_id)
+            if referral:
+                referral_bonus = referral_service.get_credit_balance(user.user_id)
+                logger.info(f"紹介特典適用: {user.email} +{referral_bonus}円クレジット")
 
         # 初回APIキー発行
         raw_key, api_key = auth_service.generate_api_key(user.user_id, "default")
@@ -810,6 +839,121 @@ https://ecomtrend.ai
                 },
             })
         return {"plans": plans}
+
+    # === エンドポイント: 紹介プログラム ===
+
+    @app.post("/referral/code", tags=["Referral"])
+    async def generate_referral_code(
+        request: ReferralCodeRequest,
+        user: User = Depends(get_current_user),
+    ):
+        """
+        紹介コードを生成
+
+        ユーザー固有の紹介コードを生成します。
+        既存のアクティブなコードがある場合はそれを返します。
+        """
+        code = referral_service.generate_code(
+            user.user_id,
+            expires_days=request.expires_days,
+            max_uses=request.max_uses,
+        )
+        return {
+            "code": code.code,
+            "referral_url": f"https://ecomtrend.ai/register?ref={code.code}",
+            "expires_at": code.expires_at.isoformat() if code.expires_at else None,
+            "max_uses": code.max_uses,
+            "current_uses": code.current_uses,
+        }
+
+    @app.get("/referral/code", tags=["Referral"])
+    async def get_my_referral_code(user: User = Depends(get_current_user)):
+        """
+        自分の紹介コードを取得
+
+        アクティブな紹介コードがなければ自動生成します。
+        """
+        code = referral_service.get_user_code(user.user_id)
+        if not code:
+            code = referral_service.generate_code(user.user_id)
+
+        return {
+            "code": code.code,
+            "referral_url": f"https://ecomtrend.ai/register?ref={code.code}",
+            "expires_at": code.expires_at.isoformat() if code.expires_at else None,
+            "max_uses": code.max_uses,
+            "current_uses": code.current_uses,
+        }
+
+    @app.get("/referral/validate/{code}", tags=["Referral"])
+    async def validate_referral_code(code: str):
+        """
+        紹介コードを検証（公開エンドポイント）
+
+        紹介コードが有効かどうかを確認します。
+        """
+        code_obj = referral_service.validate_code(code)
+        if code_obj:
+            return {
+                "valid": True,
+                "message": "有効な紹介コードです。登録時に特典が適用されます。",
+            }
+        return {
+            "valid": False,
+            "message": "この紹介コードは無効または期限切れです。",
+        }
+
+    @app.get("/referral/stats", tags=["Referral"])
+    async def get_referral_stats(user: User = Depends(get_current_user)):
+        """
+        紹介統計を取得
+
+        紹介実績・報酬履歴・クレジット残高を返します。
+        """
+        return referral_service.get_referral_stats(user.user_id)
+
+    @app.get("/referral/credits", tags=["Referral"])
+    async def get_credit_balance(user: User = Depends(get_current_user)):
+        """
+        クレジット残高を取得
+        """
+        balance = referral_service.get_credit_balance(user.user_id)
+        return {
+            "balance": balance,
+            "currency": "JPY",
+            "message": f"現在のクレジット残高は{balance}円です。",
+        }
+
+    @app.post("/referral/credits/use", tags=["Referral"])
+    async def use_credits(
+        request: UseCreditRequest,
+        user: User = Depends(get_current_user),
+    ):
+        """
+        クレジットを使用
+
+        サブスクリプション支払いなどにクレジットを適用します。
+        """
+        if request.amount <= 0:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="使用額は1円以上を指定してください",
+            )
+
+        success = referral_service.use_credit(user.user_id, request.amount)
+        if not success:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="クレジット残高が不足しています",
+            )
+
+        new_balance = referral_service.get_credit_balance(user.user_id)
+        return {
+            "success": True,
+            "used": request.amount,
+            "new_balance": new_balance,
+            "message": f"{request.amount}円のクレジットを使用しました。残高: {new_balance}円",
+        }
 
     # === エンドポイント: Webhook ===
 

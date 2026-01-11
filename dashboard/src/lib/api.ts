@@ -79,11 +79,20 @@ export interface Plan {
 export const api = {
   // ユーザー登録
   async register(email: string): Promise<ApiResponse<User>> {
+    return this.registerWithReferral(email);
+  },
+
+  // ユーザー登録（紹介コード付き）
+  async registerWithReferral(email: string, referralCode?: string): Promise<ApiResponse<User>> {
     try {
+      const body: { email: string; referral_code?: string } = { email };
+      if (referralCode) {
+        body.referral_code = referralCode;
+      }
       const res = await fetch(`${API_BASE}/users/register`, {
         method: 'POST',
         headers: getHeaders(false),
-        body: JSON.stringify({ email }),
+        body: JSON.stringify(body),
       });
       if (!res.ok) {
         const error = await res.json();

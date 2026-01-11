@@ -101,6 +101,10 @@ export default function Header() {
                 <Link href="/dashboard" className="text-gray-600 hover:text-gray-900 transition-colors">
                   ダッシュボード
                 </Link>
+                <Link href="/referral" className="text-gray-600 hover:text-gray-900 transition-colors flex items-center gap-1">
+                  <span>紹介プログラム</span>
+                  <span className="bg-primary-100 text-primary-700 text-xs font-medium px-1.5 py-0.5 rounded">¥500</span>
+                </Link>
                 <button onClick={handleLogout} className="btn-secondary text-sm py-2 px-4">
                   ログアウト
                 </button>
@@ -199,6 +203,14 @@ export default function Header() {
                     onClick={closeMobileMenu}
                   >
                     ダッシュボード
+                  </Link>
+                  <Link
+                    href="/referral"
+                    className="text-gray-600 hover:text-gray-900 py-2 transition-colors flex items-center gap-2"
+                    onClick={closeMobileMenu}
+                  >
+                    <span>紹介プログラム</span>
+                    <span className="bg-primary-100 text-primary-700 text-xs font-medium px-1.5 py-0.5 rounded">¥500</span>
                   </Link>
                   <button
                     onClick={handleLogout}

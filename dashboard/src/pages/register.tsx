@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Head from 'next/head';
@@ -9,23 +9,57 @@ import { api, auth } from '@/lib/api';
 export default function Register() {
   const router = useRouter();
   const [email, setEmail] = useState('');
+  const [referralCode, setReferralCode] = useState('');
+  const [referralValid, setReferralValid] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [apiKey, setApiKey] = useState('');
+  const [referralBonus, setReferralBonus] = useState(0);
+
+  // URLから紹介コードを取得
+  useEffect(() => {
+    const ref = router.query.ref as string;
+    if (ref) {
+      setReferralCode(ref);
+      validateReferralCode(ref);
+    }
+  }, [router.query.ref]);
+
+  // 紹介コード検証
+  const validateReferralCode = async (code: string) => {
+    if (!code) {
+      setReferralValid(null);
+      return;
+    }
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/referral/validate/${code}`
+      );
+      const data = await response.json();
+      setReferralValid(data.valid);
+    } catch {
+      setReferralValid(null);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
-    const result = await api.register(email);
+    // 紹介コード付きで登録
+    const result = await api.registerWithReferral(email, referralCode || undefined);
 
     if (result.success && result.data) {
       // APIキーを保存
       if (result.data.api_key) {
         auth.setApiKey(result.data.api_key);
         setApiKey(result.data.api_key);
+      }
+      // 紹介特典があれば表示
+      if (referralValid && referralCode) {
+        setReferralBonus(200);
       }
       setSuccess(true);
     } else {
@@ -77,6 +111,49 @@ export default function Register() {
                     placeholder="you@example.com"
                     required
                   />
+                </div>
+
+                {/* 紹介コード入力 */}
+                <div className="mb-6">
+                  <label htmlFor="referralCode" className="block text-sm font-medium text-gray-700 mb-2">
+                    紹介コード（お持ちの場合）
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      id="referralCode"
+                      value={referralCode}
+                      onChange={(e) => {
+                        setReferralCode(e.target.value.toUpperCase());
+                        validateReferralCode(e.target.value.toUpperCase());
+                      }}
+                      className={`input ${
+                        referralValid === true
+                          ? 'border-green-500 focus:ring-green-500'
+                          : referralValid === false
+                          ? 'border-red-500 focus:ring-red-500'
+                          : ''
+                      }`}
+                      placeholder="例: ECT12345678"
+                    />
+                    {referralValid === true && (
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                        <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                    )}
+                  </div>
+                  {referralValid === true && (
+                    <p className="mt-1 text-sm text-green-600 flex items-center gap-1">
+                      <span>🎉</span> 有効な紹介コードです！200円分のクレジットがもらえます
+                    </p>
+                  )}
+                  {referralValid === false && referralCode && (
+                    <p className="mt-1 text-sm text-red-600">
+                      この紹介コードは無効または期限切れです
+                    </p>
+                  )}
                 </div>
 
                 <button
@@ -144,6 +221,21 @@ export default function Register() {
                 <h1 className="text-2xl font-bold text-gray-900 mb-2">登録完了!</h1>
                 <p className="text-gray-600">APIキーが発行されました</p>
               </div>
+
+              {/* 紹介特典表示 */}
+              {referralBonus > 0 && (
+                <div className="bg-green-50 border border-green-200 p-4 rounded-lg mb-6">
+                  <div className="flex items-center gap-3">
+                    <span className="text-3xl">🎁</span>
+                    <div>
+                      <p className="font-medium text-green-800">紹介特典が適用されました！</p>
+                      <p className="text-sm text-green-700">
+                        {referralBonus}円分のクレジットがアカウントに追加されました
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div className="bg-gray-100 p-4 rounded-lg mb-6">
                 <div className="flex justify-between items-center mb-2">
