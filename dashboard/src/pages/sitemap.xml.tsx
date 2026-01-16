@@ -1,4 +1,5 @@
 import { GetServerSideProps } from 'next';
+import { getAllPosts } from '@/lib/blog';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://ecomtrend.ai';
 
@@ -8,6 +9,7 @@ const staticPages = [
   { path: '/demo', priority: 0.95, changefreq: 'daily' },
   { path: '/sample-report', priority: 0.9, changefreq: 'daily' },
   { path: '/pricing', priority: 0.8, changefreq: 'weekly' },
+  { path: '/blog', priority: 0.8, changefreq: 'daily' },
   { path: '/docs', priority: 0.7, changefreq: 'weekly' },
   { path: '/faq', priority: 0.7, changefreq: 'weekly' },
   { path: '/login', priority: 0.5, changefreq: 'monthly' },
@@ -20,6 +22,16 @@ const staticPages = [
 
 function generateSiteMap() {
   const today = new Date().toISOString().split('T')[0];
+  const blogPosts = getAllPosts();
+
+  const blogUrls = blogPosts.map(
+    (post) => `  <url>
+    <loc>${SITE_URL}/blog/${post.slug}</loc>
+    <lastmod>${post.updatedAt || post.publishedAt}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>`
+  ).join('\n');
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
@@ -36,6 +48,7 @@ ${staticPages
   </url>`
   )
   .join('\n')}
+${blogUrls}
 </urlset>`;
 }
 

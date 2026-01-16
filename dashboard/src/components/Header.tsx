@@ -89,6 +89,9 @@ export default function Header() {
             <Link href="/pricing" className="text-gray-600 hover:text-gray-900 transition-colors">
               料金
             </Link>
+            <Link href="/blog" className="text-gray-600 hover:text-gray-900 transition-colors">
+              ブログ
+            </Link>
             <Link href="/docs" className="text-gray-600 hover:text-gray-900 transition-colors">
               ドキュメント
             </Link>
@@ -185,6 +188,13 @@ export default function Header() {
                 onClick={closeMobileMenu}
               >
                 料金
+              </Link>
+              <Link
+                href="/blog"
+                className="text-gray-600 hover:text-gray-900 py-2 transition-colors"
+                onClick={closeMobileMenu}
+              >
+                ブログ
               </Link>
               <Link
                 href="/docs"
