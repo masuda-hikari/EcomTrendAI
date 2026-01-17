@@ -220,6 +220,89 @@
 - Prophet / scikit-learn（将来のML導入）
 ---
 
+## 共有モジュール（_orchestrator）
+
+★★★ 情報収集・コンテンツ生成・セキュリティは共有モジュールを必ず使用 ★★★
+
+### モジュールパス
+```
+O:\Dev\Work\_orchestrator\lib\
+├── info_collector/  # WebFetcher, SNSCollector, MarketDataCollector
+├── content_engine/  # ContentGenerator, PostScheduler
+└── security/        # GDPRCompliance, AuditLogger
+```
+
+### 使用方法
+```python
+import sys
+sys.path.insert(0, r"O:\Dev\Work\_orchestrator")
+
+from lib.info_collector import WebFetcher, SNSCollector
+from lib.content_engine import ContentGenerator
+from lib.security import AuditLogger
+```
+
+### スキル呼び出し
+/info-collector - 情報収集ガイド参照
+
+---
+
+## 📰 情報収集設定（CRITICAL - 必須）
+
+★★★ プロジェクト作業の50%は情報収集にリソースを割くこと ★★★
+
+### 収集対象と頻度
+| カテゴリ | キーワード | 情報源 | 頻度 | 保存先 |
+|---------|-----------|--------|------|--------|
+| 市場データ | EC市場規模, Eコマース成長率, Amazon売上 | 経産省、METI、Statista | 月1回 | data/collected/market/ |
+| 競合情報 | Jungle Scout, Helium 10, Keepa, Sellics | 競合サイト、プレスリリース | 週1回 | data/collected/competitor/ |
+| 技術動向 | Amazon MWS, SP-API, 楽天API | GitHub、公式ドキュメント | 週1回 | data/collected/tech/ |
+| SNSトレンド | #EC, #Amazon, #物販, #副業 | X/Twitter、YouTube | 日1回 | data/collected/social/ |
+| 法規制 | 特定商取引法, 景品表示法, Amazon規約変更 | 消費者庁、Amazon公式 | 月1回 | data/collected/legal/ |
+
+### 情報品質チェックリスト
+- [ ] 経産省のEC市場調査レポートを参照したか
+- [ ] Amazon公式の規約・ポリシー変更を確認したか
+- [ ] 市場規模データは2026年最新版を使用しているか
+
+---
+
+## 📱 SNS運営設定（CRITICAL - 必須）
+
+★★★ 開発だけして運営しない状態は失敗扱い ★★★
+
+### アカウント情報
+| プラットフォーム | アカウント | 目的 | 状態 |
+|-----------------|-----------|------|------|
+| X/Twitter | @EcomTrendAI | ECトレンド発信 | 要開設 |
+| YouTube | EcomTrendAI | 分析動画 | 要開設 |
+
+### 投稿スケジュール
+| 曜日 | 時間 | コンテンツタイプ |
+|------|------|-----------------|
+| 月-金 | 09:00 | Amazon売れ筋速報 |
+| 月-金 | 18:00 | トレンド分析 |
+| 土日 | 12:00 | 週間売上ランキング |
+
+### コンテンツ戦略
+1. **売れ筋商品速報** - Amazon/楽天のトレンド商品紹介
+2. **市場分析** - カテゴリ別の売上動向
+3. **セラー向けTips** - 出品・販売最適化のノウハウ
+4. **規約変更情報** - Amazon/楽天の最新ポリシー
+
+---
+
+## 🔒 セキュリティ・法令対策
+
+### 必須対応項目
+| 項目 | 対応状況 |
+|------|---------|
+| プライバシーポリシー | 未 |
+| 特定商取引法表記 | 要確認 |
+| Amazon PA-API利用規約 | 要確認 |
+
+---
+
 ## 📊 データ取得戦略
 
 ### API vs スクレイピング
