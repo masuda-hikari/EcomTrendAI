@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
+import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import PricingCard from '@/components/PricingCard';
@@ -189,9 +190,9 @@ export default function Pricing() {
           {/* CTA */}
           <div className="mt-20 text-center">
             <p className="text-gray-600 mb-4">ご質問がありますか？</p>
-            <a href="/contact" className="text-primary-600 hover:underline font-medium">
+            <Link href="/contact" className="text-primary-600 hover:underline font-medium">
               お問い合わせはこちら &rarr;
-            </a>
+            </Link>
           </div>
         </div>
       </main>
