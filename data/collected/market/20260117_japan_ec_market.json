@@ -1,0 +1,62 @@
+{
+  "collected_at": "2026-01-17",
+  "source": "経済産業省 電子商取引市場調査",
+  "data": {
+    "btoc_ec": {
+      "2024": {
+        "market_size_trillion_yen": 26.1,
+        "growth_rate": 5.1,
+        "ec_adoption_rate": 9.8,
+        "year_over_year_change": "+1.3兆円"
+      },
+      "2023": {
+        "market_size_trillion_yen": 24.8435,
+        "physical_goods": 14.676,
+        "services": 7.5169,
+        "digital_goods": 2.6506,
+        "ec_adoption_rate": 9.4
+      },
+      "2022": {
+        "market_size_trillion_yen": 22.7
+      }
+    },
+    "btob_ec": {
+      "2024": {
+        "market_size_trillion_yen": 514.4,
+        "growth_rate": 10.6,
+        "ec_adoption_rate": 43.1
+      },
+      "2023": {
+        "market_size_trillion_yen": 465.2
+      },
+      "2022": {
+        "market_size_trillion_yen": 420.2
+      }
+    },
+    "trends": [
+      "BtoC-EC市場は3年連続で拡大（2022: 22.7兆円 → 2023: 24.8兆円 → 2024: 26.1兆円）",
+      "EC化率は毎年0.4-0.5ポイント上昇中",
+      "BtoB-EC市場の成長率（10.6%）がBtoC-EC（5.1%）を大きく上回る",
+      "サービス分野のEC化が加速（2023年度22.27%増）"
+    ],
+    "forecast_2026": {
+      "estimated_btoc_ec_trillion_yen": 28.5,
+      "estimated_ec_adoption_rate": 10.6,
+      "basis": "過去3年の成長率（年平均約5-6%）から推定"
+    }
+  },
+  "sources": [
+    {
+      "title": "令和6年度電子商取引に関する市場調査",
+      "url": "https://www.meti.go.jp/press/2025/08/20250826005/20250826005.html"
+    },
+    {
+      "title": "【2026年最新版】EC市場規模は拡大中？",
+      "url": "https://www.w2solution.co.jp/useful_info_ec/ec-market/"
+    },
+    {
+      "title": "経産省EC市場調査の最新結果",
+      "url": "https://itsumo365.co.jp/blog/post-22388/"
+    }
+  ]
+}

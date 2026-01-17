@@ -1,0 +1,119 @@
+{
+  "collected_at": "2026-01-17",
+  "category": "Amazon売れ筋トレンド分析ツール",
+  "competitors": [
+    {
+      "name": "Jungle Scout",
+      "pricing": {
+        "starter": "$29/月（旧Basic）",
+        "growth_accelerator": "$49/月（旧Suite）",
+        "brand_owner_ci": "$84/月（旧Professional）",
+        "note": "2026年にプラン名変更"
+      },
+      "strengths": [
+        "データ精度84%（業界最高）",
+        "初心者向けUI/UX",
+        "独自のサプライヤーデータベース",
+        "商品リサーチ特化"
+      ],
+      "weaknesses": [
+        "高度な機能はHelium 10に劣る",
+        "Amazon専用（Walmart非対応）"
+      ],
+      "accuracy_rate": 84,
+      "target_users": "初心者・中級者"
+    },
+    {
+      "name": "Helium 10",
+      "pricing": {
+        "starter": "$39/月",
+        "platinum": "$99/月",
+        "diamond": "$279/月",
+        "note": "2026年に価格値上げあり"
+      },
+      "strengths": [
+        "最も包括的な機能セット",
+        "Cerebro・Magnetキーワードツールが強力",
+        "Walmart対応",
+        "上級者向け高度な分析"
+      ],
+      "weaknesses": [
+        "データ精度74%（Jungle Scoutより低い）",
+        "UIが複雑（初心者には難しい）",
+        "2026年価格値上げでコスパ低下",
+        "カスタマーサービス悪化の報告"
+      ],
+      "accuracy_rate": 74,
+      "target_users": "中級者・上級者・代理店"
+    },
+    {
+      "name": "Viral Launch",
+      "pricing": {
+        "essentials": "$69/月",
+        "pro": "$99/月"
+      },
+      "strengths": [
+        "データ精度79%",
+        "バランスの取れた機能"
+      ],
+      "accuracy_rate": 79,
+      "target_users": "中級者"
+    },
+    {
+      "name": "Keepa",
+      "pricing": {
+        "monthly": "€19/月（約¥3,000）"
+      },
+      "strengths": [
+        "価格推移トラッキング特化",
+        "低価格"
+      ],
+      "weaknesses": [
+        "総合分析機能は限定的"
+      ],
+      "target_users": "価格トラッキング重視ユーザー"
+    },
+    {
+      "name": "Sellics（Perpetua）",
+      "pricing": {
+        "custom": "カスタム見積もり"
+      },
+      "strengths": [
+        "広告最適化機能",
+        "大規模セラー向け"
+      ],
+      "target_users": "大企業・広告運用重視"
+    }
+  ],
+  "market_insights": [
+    "Jungle Scoutが初心者市場を独占",
+    "Helium 10は上級者・代理店向けだが2026年値上げで評価低下",
+    "データ精度が購入決定の重要要因",
+    "Amazon専用ツールが主流（Walmart対応はHelium 10のみ）",
+    "月額料金相場: $29-$279（約¥4,500-¥43,000）"
+  ],
+  "our_positioning": {
+    "differentiation": [
+      "AI駆動の自動トレンド分析（手動リサーチ不要）",
+      "日本市場特化（楽天・Amazon.co.jp対応）",
+      "低価格（¥980/月 vs 競合¥4,500-¥43,000/月）",
+      "初心者でも使える自動レポート配信"
+    ],
+    "target_price": "¥980/月（競合比78%安）",
+    "target_users": "日本の副業・個人事業主・中小EC事業者"
+  },
+  "sources": [
+    {
+      "title": "Helium 10 vs Jungle Scout (2026)",
+      "url": "https://www.demandsage.com/helium-10-vs-jungle-scout/"
+    },
+    {
+      "title": "Jungle Scout Review 2026",
+      "url": "https://revenuegeeks.com/jungle-scout-review/"
+    },
+    {
+      "title": "Helium 10 Pricing Plan vs Jungle Scout",
+      "url": "https://www.helium10.com/blog/helium-10-pricing-plan-vs-jungle-scout-pricing-plan-jan-2026-update/"
+    }
+  ]
+}
