@@ -19,6 +19,7 @@ python-dotenv>=1.0.0
 fastapi>=0.109.0
 uvicorn>=0.27.0
 pydantic>=2.5.0
+email-validator>=2.1.0           # Pydantic EmailStr validation
 
 # Payment
 stripe>=7.0.0
