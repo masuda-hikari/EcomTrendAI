@@ -2,9 +2,9 @@
 
 **AIトレンド分析で、Eコマースの売れ筋を先読み。**
 
-[![CI/CD](https://github.com/YOUR_USERNAME/EcomTrendAI/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_USERNAME/EcomTrendAI/actions/workflows/ci.yml)
-[![Test Coverage](https://img.shields.io/badge/coverage-81%25-brightgreen)](https://github.com/YOUR_USERNAME/EcomTrendAI)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[\![CI/CD](https://github.com/YOUR_USERNAME/EcomTrendAI/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_USERNAME/EcomTrendAI/actions/workflows/ci.yml)
+[\![Test Coverage](https://img.shields.io/badge/coverage-81%25-brightgreen)](https://github.com/YOUR_USERNAME/EcomTrendAI)
+[\![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ---
 
@@ -68,20 +68,6 @@ npm run dev
 - API: http://localhost:8000
 - ダッシュボード: http://localhost:3000
 - APIドキュメント: http://localhost:8000/docs
-
----
-
-## 料金プラン
-
-| プラン | 月額 | 主な機能 |
-|--------|------|----------|
-| **Free** | ¥0 | 日次10件、2カテゴリ、API 100回/日 |
-| **Pro** | ¥980 | 日次100件、全カテゴリ、リアルタイムアラート、CSV/JSON出力 |
-| **Enterprise** | ¥4,980 | 無制限、カスタムダッシュボード、専用サポート |
-
-**14日間返金保証**付き。安心してお試しください。
-
-[プラン詳細を見る](https://ecomtrend.ai/pricing)
 
 ---
 
@@ -162,11 +148,11 @@ curl -H "Authorization: Bearer YOUR_API_KEY" https://api.ecomtrend.ai/trends
 
 ### Vercel（フロントエンド）
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/YOUR_USERNAME/EcomTrendAI&root-directory=dashboard)
+[\![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/YOUR_USERNAME/EcomTrendAI&root-directory=dashboard)
 
 ### Render（バックエンド）
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/YOUR_USERNAME/EcomTrendAI)
+[\![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/YOUR_USERNAME/EcomTrendAI)
 
 詳細は [デプロイガイド](docs/DEPLOY_GUIDE.md) を参照してください。
 
